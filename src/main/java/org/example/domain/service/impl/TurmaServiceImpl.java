@@ -60,6 +60,15 @@ public class TurmaServiceImpl implements TurmaService {
         Turma turma = new Turma(turmaDTO.getNome(), sala, turmaDTO.getPeriodo());
         Turma turma1 = turmaRepository.save(turma);
 
+        //Valida se periodo da sala está disponivel para a turma
+        if (!sala.getPeriodosDisponiveis().contains(turmaDTO.getPeriodo())){
+            throw new IllegalArgumentException("A sala já possui turma nesse periodo");
+        }
+
+        //Remove o periodo da sala utilizado pela turma criada como fora da lista de periodos disponiveis
+        sala.getPeriodosDisponiveis().remove(turmaDTO.getPeriodo());
+        salaService.update(sala.getId(), sala);
+
 //      CRIA RELAÇÃO ALUNO-TURMA
         if (turmaDTO.getAlunos().size() != 0){
 
@@ -130,7 +139,7 @@ public class TurmaServiceImpl implements TurmaService {
         CompleteSalaDTO salaDTO = salaService.findByIdReturnDTO(turma.getSala().getId());
         List<CompleteMateriaDTO> materiaDTOS = materiaService.findMateriasByIdTurma(turma.getId());
         List<ReturnProfessorDTO> professoresDTO = professorService.findProfessoresDTOByIdTurma(turma.getId());
-        ReturnTurmaDTO turmaDTO = new ReturnTurmaDTO(turma.getNome(), salaDTO, materiaDTOS, professoresDTO);
+        ReturnTurmaDTO turmaDTO = new ReturnTurmaDTO(turma.getNome(), turma.getPeriodo(), salaDTO, materiaDTOS, professoresDTO);
 
         return turmaDTO;
     }
@@ -139,7 +148,7 @@ public class TurmaServiceImpl implements TurmaService {
     public ReturnTurmaInOtherClassDTO findByIdTurmaInOtherClass(Integer id) {
         Turma turma = findById(id);
 
-        CompleteSalaDTO salaDTO = new CompleteSalaDTO(turma.getSala().getSala());
+        CompleteSalaDTO salaDTO = new CompleteSalaDTO(turma.getSala().getSala(), turma.getSala().getPeriodosDisponiveis());
         ReturnTurmaInOtherClassDTO turmaDTO = new ReturnTurmaInOtherClassDTO(turma.getNome(), salaDTO);
 
         return turmaDTO;
@@ -148,7 +157,7 @@ public class TurmaServiceImpl implements TurmaService {
     @Override
     public ReturnTurmaInOtherClassDTO findTurmaByIdAvaliacao(Integer id) {
         Turma turma = avaliacaoTurmaRepository.findTurmaByIdAvaliacao(id);
-        CompleteSalaDTO salaDTO = new CompleteSalaDTO(turma.getSala().getSala());
+        CompleteSalaDTO salaDTO = new CompleteSalaDTO(turma.getSala().getSala(), turma.getSala().getPeriodosDisponiveis());
         ReturnTurmaInOtherClassDTO turmaDTO = new ReturnTurmaInOtherClassDTO(turma.getNome(), salaDTO);
         return turmaDTO;
     }

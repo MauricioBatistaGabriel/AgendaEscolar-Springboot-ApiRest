@@ -30,6 +30,10 @@ public class Turma {
     private Sala sala;
 
     @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "Turma_periodo",
+        joinColumns =
+    @JoinColumn(name = "turma_id"))
+    @Column(name = "PERIODO")
     private Periodo periodo;
 
     private boolean isPresent = true;

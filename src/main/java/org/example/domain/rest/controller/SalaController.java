@@ -1,6 +1,7 @@
 package org.example.domain.rest.controller;
 
 import org.example.domain.entity.Sala;
+import org.example.domain.enums.Periodo;
 import org.example.domain.rest.dto.CompleteSalaDTO;
 import org.example.domain.service.SalaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,11 @@ public class SalaController {
     @GetMapping("{id}")
     public CompleteSalaDTO findById(@PathVariable Integer id){
         return salaService.findByIdReturnDTO(id);
+    }
+
+    @GetMapping("byPeriodo")
+    public List<CompleteSalaDTO> findByPeriodo(@RequestBody Periodo periodo){
+        return salaService.findByPeriodo(periodo);
     }
 
     @GetMapping

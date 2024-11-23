@@ -22,6 +22,7 @@ public class CompleteTurmaDTO {
     @NotNull(message = "{campo.sala}")
     private Integer sala;
 
+    @NotNull(message = "{campo.periodo}")
     private Periodo periodo;
 
     @NotNull(message = "{campo.materia}")

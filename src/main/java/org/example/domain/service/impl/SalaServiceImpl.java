@@ -1,6 +1,7 @@
 package org.example.domain.service.impl;
 
 import org.example.domain.entity.Sala;
+import org.example.domain.enums.Periodo;
 import org.example.domain.repository.SalaRepository;
 import org.example.domain.rest.dto.CompleteSalaDTO;
 import org.example.domain.service.SalaService;
@@ -42,9 +43,18 @@ public class SalaServiceImpl implements SalaService {
     public CompleteSalaDTO findByIdReturnDTO(Integer id) {
         Sala sala = findById(id);
 
-        CompleteSalaDTO salaDTO = new CompleteSalaDTO(sala.getSala());
+        CompleteSalaDTO salaDTO = new CompleteSalaDTO(sala.getSala(), sala.getPeriodosDisponiveis());
 
         return salaDTO;
+    }
+
+    @Override
+    public List<CompleteSalaDTO> findByPeriodo(Periodo periodo) {
+        List<Sala> salasDisponiveis = salaRepository.findByPeriodo(periodo);
+
+        return salasDisponiveis.stream()
+                .map( sala -> new CompleteSalaDTO(sala.getSala(), sala.getPeriodosDisponiveis()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -62,7 +72,7 @@ public class SalaServiceImpl implements SalaService {
         List<Sala> salas = salaRepository.findAll(example);
 
         return salas.stream()
-                .map( sala1 -> new CompleteSalaDTO(sala1.getSala()))
+                .map( sala1 -> new CompleteSalaDTO(sala1.getSala(), sala1.getPeriodosDisponiveis()))
                 .collect(Collectors.toList());
     }
 
