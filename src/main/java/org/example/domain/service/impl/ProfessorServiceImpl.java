@@ -4,18 +4,21 @@ import org.example.domain.entity.Materia;
 import org.example.domain.entity.Professor;
 import org.example.domain.entity.Turma;
 import org.example.domain.enums.Periodo;
+import org.example.domain.exception.SenhaInvalidaException;
 import org.example.domain.repository.AulaRepository;
 import org.example.domain.repository.MateriaRepository;
 import org.example.domain.repository.ProfessorRepository;
 import org.example.domain.repository.ProfessorTurmaRepository;
 import org.example.domain.rest.dto.*;
-import org.example.domain.service.MateriaProfessorService;
-import org.example.domain.service.MateriaService;
-import org.example.domain.service.ProfessorTurmaService;
-import org.example.domain.service.TurmaService;
+import org.example.domain.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityNotFoundException;
@@ -24,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ProfessorServiceImpl implements org.example.domain.service.ProfessorService {
+public class ProfessorServiceImpl implements ProfessorService, UserDetailsService {
 
     @Autowired
     private ProfessorRepository professorRepository;
@@ -47,10 +50,13 @@ public class ProfessorServiceImpl implements org.example.domain.service.Professo
     @Autowired
     private MateriaProfessorService materiaProfessorService;
 
+    @Autowired
+    private PasswordEncoder encoder;
+
     @Override
     @Transactional
     public Integer save(CompleteProfessorDTO professorDTO) {
-        Professor professor = new Professor(professorDTO.getNome(), professorDTO.getCpf(), professorDTO.getPeriodosDeTrabalho());
+        Professor professor = new Professor(professorDTO.getEmail(), professorDTO.getSenha(), professorDTO.getNome(), professorDTO.getCpf(), professorDTO.getPeriodosDeTrabalho());
         Professor professor1 = professorRepository.save(professor);
 
         if (professorDTO.getMaterias().size() != 0){
@@ -69,6 +75,28 @@ public class ProfessorServiceImpl implements org.example.domain.service.Professo
         }
 
         return professor.getId();
+    }
+
+    public UserDetails autenticar(Professor professor){
+        UserDetails user = loadUserByUsername(professor.getEmail());
+        boolean senhasBatem = encoder.matches(professor.getSenha(), user.getPassword());
+        if (senhasBatem){
+            return user;
+        }
+        throw new SenhaInvalidaException();
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException{
+        Professor professor = professorRepository.findByEmail(email)
+                .orElseThrow( () -> new UsernameNotFoundException("Usuário não encontrado"));
+
+        return User
+                .builder()
+                .username(professor.getEmail())
+                .password(professor.getSenha())
+                .roles("PROFESSOR")
+                .build();
     }
 
     @Override
@@ -174,7 +202,7 @@ public class ProfessorServiceImpl implements org.example.domain.service.Professo
                         ExampleMatcher.StringMatcher.CONTAINING
                 );
 
-        Professor professor = new Professor(professorDTO.getNome(), professorDTO.getCpf(), professorDTO.getPeriodosDeTrabalho());
+        Professor professor = new Professor(professorDTO.getEmail(), professorDTO.getSenha(), professorDTO.getNome(), professorDTO.getCpf(), professorDTO.getPeriodosDeTrabalho());
 
         Example example = Example.of(professor, matcher);
         List<Professor> professores = professorRepository.findAll(example);

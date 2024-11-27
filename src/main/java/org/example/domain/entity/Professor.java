@@ -1,5 +1,6 @@
 package org.example.domain.entity;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,12 +15,17 @@ import java.util.Set;
 @Setter
 @Getter
 @Entity(name = "PROFESSOR")
-public class Professor {
+@Builder
+public class Professor{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_professor")
     private Integer id;
+
+    private String email;
+
+    private String senha;
 
     @Column(name = "nome_professor")
     @Size(min = 3, max = 100, message = "{campo.nome.validation}")
@@ -41,10 +47,28 @@ public class Professor {
 
     private boolean isPresent = true;
 
+    public Professor(String email, String senha, String nome, String cpf, Set<Periodo> periodosDeTrabalho){
+        this.email = email;
+        this.senha = senha;
+        this.nome = nome;
+        this.cpf = cpf;
+        this.periodosDeTrabalho = periodosDeTrabalho;
+    }
+
     public Professor(String nome, String cpf, Set<Periodo> periodosDeTrabalho){
         this.nome = nome;
         this.cpf = cpf;
         this.periodosDeTrabalho = periodosDeTrabalho;
+    }
+
+    public Professor(Integer id, String email, String senha, String nome, String cpf, Set<Periodo> periodosDeTrabalho, boolean isPresent) {
+        this.id = id;
+        this.email = email;
+        this.senha = senha;
+        this.nome = nome;
+        this.cpf = cpf;
+        this.periodosDeTrabalho = periodosDeTrabalho;
+        this.isPresent = isPresent;
     }
 
     public Professor() {

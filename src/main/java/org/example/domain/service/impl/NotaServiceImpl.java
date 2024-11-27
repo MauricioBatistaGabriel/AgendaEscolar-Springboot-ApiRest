@@ -91,7 +91,7 @@ public class NotaServiceImpl implements NotaService {
         CompleteAlunoDTO alunoDTO = (notaDTO.getAluno() != null) ?
                 alunoService.findByIdReturnDTO(notaDTO.getAluno()) :
                 new CompleteAlunoDTO();
-        Aluno aluno = new Aluno(alunoDTO.getNome(), alunoDTO.getCpf(), alunoDTO.getIdade());
+        Aluno aluno = new Aluno(alunoDTO.getEmail(), alunoDTO.getSenha(), alunoDTO.getNome(), alunoDTO.getCpf(), alunoDTO.getIdade());
 
         CompleteMateriaDTO materiaDTO = (notaDTO.getAvaliacao() != null) ?
                 avaliacaoService.findByIdReturnDTO(notaDTO.getAvaliacao()).getMateria() :
