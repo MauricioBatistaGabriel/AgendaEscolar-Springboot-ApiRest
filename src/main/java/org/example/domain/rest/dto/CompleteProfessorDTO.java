@@ -17,6 +17,10 @@ import java.util.Set;
 @NoArgsConstructor
 public class CompleteProfessorDTO {
 
+    private String email;
+
+    private String senha;
+
     @Size(min = 3, max = 100, message = "{campo.nome.validation}")
     @NotEmpty(message = "{campo.nome}")
     private String nome;
