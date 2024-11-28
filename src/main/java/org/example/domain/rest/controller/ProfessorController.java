@@ -75,7 +75,7 @@ public class ProfessorController {
     }
 
     @GetMapping("/materia/{idMateria}")
-    public List<ReturnProfessorDTO> teste(@PathVariable Integer idMateria, @RequestBody Periodo periodo){
+    public List<ReturnProfessorDTO> findProfessorByMateriaAndPeriodo(@PathVariable Integer idMateria, @RequestBody Periodo periodo){
         return professorService.findProfessorDTOByMateriaAndPeriodo(idMateria, periodo);
     }
 

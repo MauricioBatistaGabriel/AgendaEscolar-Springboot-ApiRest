@@ -2,6 +2,7 @@ package org.example.domain.security.jwt;
 
 import org.example.domain.service.impl.AlunoServiceImpl;
 import org.example.domain.service.impl.ProfessorServiceImpl;
+import org.example.domain.service.impl.UsuarioAdmServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,12 +22,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private JwtService jwtService;
     private ProfessorServiceImpl professorService;
     private AlunoServiceImpl alunoService;
+    private UsuarioAdmServiceImpl usuarioAdmService;
 
     @Autowired
-    public JwtAuthFilter(JwtService jwtService, ProfessorServiceImpl professorService, AlunoServiceImpl alunoService) {
+    public JwtAuthFilter(JwtService jwtService, ProfessorServiceImpl professorService, AlunoServiceImpl alunoService, UsuarioAdmServiceImpl usuarioAdmService) {
         this.jwtService = jwtService;
         this.professorService = professorService;
         this.alunoService = alunoService;
+        this.usuarioAdmService = usuarioAdmService;
     }
 
     @Override protected void doFilterInternal(HttpServletRequest httpServletRequest,
@@ -55,13 +58,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             userDetails = alunoService.loadUserByUsername(username);
         } catch (UsernameNotFoundException e) {
-
-        } if (userDetails == null) {
+        }
+        if (userDetails == null) {
             try {
                 userDetails = professorService.loadUserByUsername(username);
             } catch (UsernameNotFoundException e) {
-
             }
-        } return userDetails;
+        }
+        if (userDetails == null) {
+            try {
+                userDetails = usuarioAdmService.loadUserByUsername(username);
+            } catch (UsernameNotFoundException e) {
+            }
+        }
+        return userDetails;
     }
+
 }

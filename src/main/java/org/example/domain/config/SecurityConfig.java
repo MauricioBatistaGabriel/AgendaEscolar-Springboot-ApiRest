@@ -1,9 +1,11 @@
 package org.example.domain.config;
 
+import org.example.domain.entity.UsuarioAdm;
 import org.example.domain.security.jwt.JwtAuthFilter;
 import org.example.domain.security.jwt.JwtService;
 import org.example.domain.service.impl.AlunoServiceImpl;
 import org.example.domain.service.impl.ProfessorServiceImpl;
+import org.example.domain.service.impl.UsuarioAdmServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
@@ -17,6 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import static org.springframework.http.HttpMethod.*;
+
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -25,6 +29,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     AlunoServiceImpl alunoService;
+
+    @Autowired
+    UsuarioAdmServiceImpl usuarioAdmService;
 
     @Autowired
     JwtService jwtService;
@@ -36,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public OncePerRequestFilter jwtFilter() {
-        return new JwtAuthFilter(jwtService, professorService, alunoService);
+        return new JwtAuthFilter(jwtService, professorService, alunoService, usuarioAdmService);
     }
 
     @Override
@@ -47,6 +54,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth
                 .userDetailsService(professorService)
                 .passwordEncoder(passwordEncoder());
+        auth
+                .userDetailsService(usuarioAdmService)
+                .passwordEncoder(passwordEncoder());
     }
 
     @Override
@@ -54,9 +64,58 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/aluno/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/professor/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/materia/**").permitAll()
+
+                //USUARIO CONTROLLER
+                .antMatchers(POST, "/api/usuario/**").permitAll()
+
+                //PROFESSOR CONTROLLER
+                .antMatchers(POST, "/api/professor/auth").permitAll()
+                .antMatchers(POST, "/api/professor").hasRole("ADM")
+                .antMatchers(DELETE, "/api/professor/{id}").hasRole("ADM")
+                .antMatchers(GET, "/api/professor/**").hasAnyRole("ADM", "PROFESSOR")
+
+                //ALUNO CONTROLLER
+                .antMatchers(POST, "/api/aluno/auth").permitAll()
+                .antMatchers(POST, "/api/aluno").hasRole("ADM")
+                .antMatchers(DELETE, "/api/aluno/{id}").hasRole("ADM")
+                .antMatchers(GET, "/api/aluno/**").hasAnyRole("ADM", "ALUNO")
+
+                //AULA CONTROLLER
+                .antMatchers(POST, "/api/aula").hasRole("ADM")
+                .antMatchers(PUT, "/api/aula/{id}").hasRole("ADM")
+                .antMatchers(DELETE, "/api/aula/{id}").hasRole("ADM")
+                .antMatchers(GET, "/api/aula/**").hasAnyRole("ADM", "ALUNO", "PROFESSOR")
+
+                //AVALIAÇÃO CONTROLLER
+                .antMatchers(POST, "/api/avaliacao").hasRole("PROFESSOR")
+                .antMatchers(PUT, "/api/avaliacao/{id}").hasRole("PROFESSOR")
+                .antMatchers(DELETE, "/api/avaliacao/{id}").hasRole("PROFESSOR")
+                .antMatchers(GET, "/api/avaliacao/**").hasAnyRole("ADM", "ALUNO", "PROFESSOR")
+
+                //MATERIA CONTROLLER
+                .antMatchers(POST, "/api/materia").hasRole("ADM")
+                .antMatchers(PUT, "/api/materia/{id}").hasRole("ADM")
+                .antMatchers(DELETE, "/api/materia/{id}").hasRole("ADM")
+                .antMatchers(GET, "/api/materia/**").hasAnyRole("ADM", "ALUNO", "PROFESSOR")
+
+                //NOTA CONTROLLER
+                .antMatchers(POST, "/api/nota").hasRole("PROFESSOR")
+                .antMatchers(PUT, "/api/nota/{id}").hasRole("PROFESSOR")
+                .antMatchers(DELETE, "/api/nota/{id}").hasRole("PROFESSOR")
+                .antMatchers(GET, "/api/nota/**").hasAnyRole("ADM", "ALUNO", "PROFESSOR")
+
+                //SALA CONTROLLER
+                .antMatchers(POST, "/api/sala").hasRole("ADM")
+                .antMatchers(PUT, "/api/sala/{id}").hasRole("ADM")
+                .antMatchers(DELETE, "/api/sala/{id}").hasRole("ADM")
+                .antMatchers(GET, "/api/sala/**").hasAnyRole("ADM", "ALUNO", "PROFESSOR")
+
+                //TURMA CONTROLLER
+                .antMatchers(POST, "/api/turma").hasRole("ADM")
+                .antMatchers(PUT, "/api/turma/{id}").hasRole("ADM")
+                .antMatchers(DELETE, "/api/turma/{id}").hasRole("ADM")
+                .antMatchers(GET, "/api/turma/**").hasAnyRole("ADM", "ALUNO", "PROFESSOR")
+
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

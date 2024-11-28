@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.example.domain.entity.Aluno;
 import org.example.domain.entity.Professor;
+import org.example.domain.entity.UsuarioAdm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
@@ -45,6 +46,20 @@ public class JwtService {
         return Jwts
                 .builder()
                 .setSubject(aluno.getEmail())
+                .setExpiration(data)
+                .signWith(SignatureAlgorithm.HS512, chaveAssinatura)
+                .compact();
+    }
+
+    public String gerarTokenAdm(UsuarioAdm usuarioAdm){
+        long expString = Long.valueOf(expiracao);
+        LocalDateTime dataHoraExpiracao = LocalDateTime.now().plusMinutes(expString);
+        Instant instant = dataHoraExpiracao.atZone(ZoneId.systemDefault()).toInstant();
+        Date data = Date.from(instant);
+
+        return Jwts
+                .builder()
+                .setSubject(usuarioAdm.getEmail())
                 .setExpiration(data)
                 .signWith(SignatureAlgorithm.HS512, chaveAssinatura)
                 .compact();
