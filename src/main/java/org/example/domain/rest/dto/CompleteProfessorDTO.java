@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.domain.enums.Periodo;
 import org.hibernate.validator.constraints.br.CPF;
+
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -17,8 +19,11 @@ import java.util.Set;
 @NoArgsConstructor
 public class CompleteProfessorDTO {
 
+    @Email
+    @NotEmpty(message = "{campo.email}")
     private String email;
 
+    @NotEmpty(message = "{campo.senha}")
     private String senha;
 
     @Size(min = 3, max = 100, message = "{campo.nome.validation}")
