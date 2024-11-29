@@ -40,22 +40,4 @@ public class AlunoTurmaServiceImpl implements AlunoTurmaService {
 
         return alunoTurmaRepository.save(alunoTurma).getId();
     }
-
-    @Override
-    public AlunoTurma findAlunoTurmaByIdAluno(Integer id) {
-        Aluno aluno = alunoService.findById(id);
-
-        AlunoTurma alunoTurma = alunoTurmaRepository.findByAlunoId(aluno.getId());
-
-        return alunoTurma;
-    }
-
-    @Override
-    public List<AlunoTurma> findAlunoTurmaByIdTurma(Integer id) {
-        Turma turma = turmaService.findById(id);
-
-        List<AlunoTurma> alunoTurmaList = alunoTurmaRepository.findByTurmaId(turma.getId());
-
-        return alunoTurmaList;
-    }
 }

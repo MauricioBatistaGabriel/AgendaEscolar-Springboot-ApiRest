@@ -44,22 +44,4 @@ public class AvaliacaoTurmaServiceImpl implements AvaliacaoTurmaService {
         AvaliacaoTurma avaliacaoTurma = new AvaliacaoTurma(avaliacao, turma);
         return avaliacaoTurmaRepository.save(avaliacaoTurma).getId();
     }
-
-    @Override
-    public AvaliacaoTurma findAvaliacaoTurmaByAvaliacaoId(Integer id) {
-        Avaliacao avaliacao = avaliacaoService.findById(id);
-
-        AvaliacaoTurma avaliacaoTurma = avaliacaoTurmaRepository.findByAvaliacaoId(avaliacao.getId());
-
-        return avaliacaoTurma;
-    }
-
-    @Override
-    public List<AvaliacaoTurma> findAvaliacaoTurmaByTurmaId(Integer id) {
-        Turma turma = turmaService.findById(id);
-
-        List<AvaliacaoTurma> avaliacaoTurmaList = avaliacaoTurmaRepository.findByTurmaId(turma.getId());
-
-        return avaliacaoTurmaList;
-    }
 }

@@ -126,7 +126,7 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
     public ReturnCompleteProfessorDTO findByIdReturnDTOComplete(Integer id) {
         Professor professor = findById(id);
 
-        List<Materia> materias = materiaProfessorService.findMateriasByProfessorId(professor.getId());
+        List<Materia> materias = materiaService.findMateriasByProfessorId(professor.getId());
 
         List<CompleteMateriaDTO> materiasDTO = new ArrayList<>();
 
@@ -191,6 +191,15 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
         }
 
         return professoresDTO;
+    }
+
+    @Override
+    public List<Professor> findByMateriaId(Integer id) {
+        Materia materia = materiaService.findById(id);
+
+        List<Professor> professores = professorRepository.findByMateriaId(materia.getId());
+
+        return professores;
     }
 
     @Override

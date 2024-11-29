@@ -10,6 +10,7 @@ public interface MateriaService {
     Materia findById(Integer id);
     CompleteMateriaDTO findByIdReturnDTO(Integer id);
     List<CompleteMateriaDTO> findMateriasByIdTurma(Integer id);
+    List<Materia> findMateriasByProfessorId(Integer id);
     List<CompleteMateriaDTO> findMateriaByIdTurmaAndIdProfessor(Integer idTurma, Integer idProfessor);
     List<CompleteMateriaDTO> filterAll(CompleteMateriaDTO materiaDTO);
     Materia update(Integer id, Materia materia);
