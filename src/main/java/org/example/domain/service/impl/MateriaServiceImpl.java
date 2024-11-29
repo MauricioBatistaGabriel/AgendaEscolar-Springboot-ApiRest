@@ -100,6 +100,15 @@ public class MateriaServiceImpl implements MateriaService {
     }
 
     @Override
+    public List<Materia> findMateriasByProfessorId(Integer id) {
+        Professor professor = professorService.findById(id);
+
+        List<Materia> materias = materiaRepository.findMateriasByProfessorId(professor.getId());
+
+        return materias;
+    }
+
+    @Override
     public List<CompleteMateriaDTO> findMateriaByIdTurmaAndIdProfessor(Integer idTurma, Integer idProfessor) {
         Turma turma = turmaService.findById(idTurma);
 
@@ -148,15 +157,16 @@ public class MateriaServiceImpl implements MateriaService {
     public void deleteById(Integer id) {
         Materia materia = materiaService.findById(id);
 
-        //VALIDA SE MATÉRIA POSSUI RELAÇÃO COM PROFESSOR
-        List<MateriaProfessor> materiaProfessorList = materiaProfessorService.findMateriaProfessorByIdMateria(materia.getId());
-       if(!materiaProfessorList.isEmpty()){
-           List<String> nomeProfessores = new ArrayList<>();
+       //VALIDA SE MÁTERIA POSSUI RELAÇÃO COM PROFESSOR
+        List<Professor> professores = professorService.findByMateriaId(materia.getId());
 
-           materiaProfessorList.forEach(materiaProfessor ->
-                   nomeProfessores.add(materiaProfessor.getProfessor().getNome()));
+       if(!professores.isEmpty()){
+           StringBuilder nomeProfessores = new StringBuilder();
+           professores.stream()
+                   .map( professor -> nomeProfessores.append(professor.getNome() + ", "))
+                   .collect(Collectors.toList());
 
-           throw new RegraNegocioException("Matéria não pode ser excluida, pois os professores: " + nomeProfessores.toString() + " possuem relação com matéria");
+           throw new RegraNegocioException("Nao é possivel realizar a operação. Matéria possui relação com professor(es) " + nomeProfessores + "remova a relação.");
        }
 
        //VALIDA SE MATÉRIA POSSUI RELAÇÃO COM TURMA

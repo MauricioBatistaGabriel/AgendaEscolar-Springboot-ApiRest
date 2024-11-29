@@ -8,8 +8,4 @@ import java.util.List;
 public interface MateriaProfessorService {
 
     Integer save(CompleteMateriaProfessorDTO materiaProfessorDTO);
-
-    List<Materia> findMateriasByProfessorId(Integer id);
-    List<MateriaProfessor> findMateriaProfessorByIdMateria(Integer id);
-    List<MateriaProfessor> findMateriaProfessorByIdProfessor(Integer id);
 }

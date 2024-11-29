@@ -21,4 +21,11 @@ public interface ProfessorRepository extends JpaRepository<Professor, Integer> {
     List<Professor> findProfessorByPeriodoAndMateria(@Param("idMateria") Integer idMateria, @Param("periodo")Periodo periodo);
 
     Optional<Professor> findByEmail(String email);
+
+    @Query("SELECT P " +
+            "FROM PROFESSOR P " +
+            "JOIN MATERIA_PROFESSOR MP ON MP.professor.id = P.id " +
+            "WHERE MP.materia.id = :id_materia " +
+            "AND MP.isPresent = true")
+    List<Professor> findByMateriaId(@Param("id_materia") Integer idMateria);
 }

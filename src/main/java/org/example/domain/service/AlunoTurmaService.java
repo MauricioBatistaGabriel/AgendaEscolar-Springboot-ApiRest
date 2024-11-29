@@ -8,8 +8,4 @@ import java.util.List;
 public interface AlunoTurmaService {
 
     Integer save(CompleteAlunoTurmaDTO alunoTurmaDTO);
-
-    AlunoTurma findAlunoTurmaByIdAluno(Integer id);
-
-    List<AlunoTurma> findAlunoTurmaByIdTurma(Integer id);
 }

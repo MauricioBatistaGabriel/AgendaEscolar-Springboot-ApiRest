@@ -42,30 +42,4 @@ public class MateriaProfessorServiceImpl implements MateriaProfessorService {
         MateriaProfessor materiaProfessor = new MateriaProfessor(materia, professor);
         return materiaProfessorRepository.save(materiaProfessor).getId();
     }
-
-    @Override
-    public List<Materia> findMateriasByProfessorId(Integer id) {
-        Professor professor = professorService.findById(id);
-
-        List<Materia> materias = materiaProfessorRepository.findMateriasByProfessorId(professor.getId());
-        return materias;
-    }
-
-    @Override
-    public List<MateriaProfessor> findMateriaProfessorByIdMateria(Integer id) {
-        Materia materia = materiaService.findById(id);
-
-        List<MateriaProfessor> materiaProfessorList = materiaProfessorRepository.findByMateriaId(materia.getId());
-
-        return materiaProfessorList;
-    }
-
-    @Override
-    public List<MateriaProfessor> findMateriaProfessorByIdProfessor(Integer id) {
-        Professor professor = professorService.findById(id);
-
-        List<MateriaProfessor> materiaProfessorList = materiaProfessorRepository.findByProfessorId(professor.getId());
-
-        return materiaProfessorList;
-    }
 }

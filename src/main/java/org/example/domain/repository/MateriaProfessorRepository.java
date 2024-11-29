@@ -9,11 +9,4 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface MateriaProfessorRepository extends JpaRepository<MateriaProfessor, Integer> {
-
-    @Query("SELECT mp.materia FROM MATERIA_PROFESSOR mp WHERE mp.professor.id = :id")
-    List<Materia> findMateriasByProfessorId(@Param("id") Integer id);
-
-    List<MateriaProfessor> findByMateriaId(@Param("id") Integer id);
-
-    List<MateriaProfessor> findByProfessorId(@Param("id") Integer id);
 }

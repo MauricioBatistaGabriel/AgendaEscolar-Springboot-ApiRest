@@ -16,4 +16,9 @@ public interface MateriaRepository extends JpaRepository<Materia, Integer> {
             "WHERE mt.turma.id = :id_turma " +
             "AND mp.professor.id = :id_professor")
     List<Materia> findByIdTurmaAndIdProfessor(@Param("id_turma") Integer idTurma, @Param("id_professor") Integer idProfessor);
+
+    @Query("SELECT M " +
+            "FROM MATERIA M " +
+            "JOIN MATERIA_PROFESSOR MP ON MP.professor.id = :id_professor")
+    List<Materia> findMateriasByProfessorId(@Param("id_professor") Integer idProfessor);
 }
