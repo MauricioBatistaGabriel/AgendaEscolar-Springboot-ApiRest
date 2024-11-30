@@ -25,11 +25,11 @@ public class ProfessorTurma {
     @JoinColumn(name = "id_turma")
     private Turma turma;
 
-    private Boolean IsPresent;
+    private Boolean isPresent = true;
 
     public ProfessorTurma(Professor professor, Turma turma) {
         this.professor = professor;
         this.turma = turma;
-        this.IsPresent = true;
+        this.isPresent = true;
     }
 }

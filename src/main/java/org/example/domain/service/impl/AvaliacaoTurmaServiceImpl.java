@@ -24,13 +24,7 @@ public class AvaliacaoTurmaServiceImpl implements AvaliacaoTurmaService {
     private AvaliacaoTurmaRepository avaliacaoTurmaRepository;
 
     @Autowired
-    private AvaliacaoRepository avaliacaoRepository;
-
-    @Autowired
     private AvaliacaoService avaliacaoService;
-
-    @Autowired
-    private TurmaRepository turmaRepository;
 
     @Autowired
     private TurmaService turmaService;

@@ -21,13 +21,7 @@ public class AlunoTurmaServiceImpl implements AlunoTurmaService {
     private AlunoTurmaRepository alunoTurmaRepository;
 
     @Autowired
-    private AlunoRepository alunoRepository;
-
-    @Autowired
     private AlunoService alunoService;
-
-    @Autowired
-    private TurmaRepository turmaRepository;
 
     @Autowired
     private TurmaService turmaService;

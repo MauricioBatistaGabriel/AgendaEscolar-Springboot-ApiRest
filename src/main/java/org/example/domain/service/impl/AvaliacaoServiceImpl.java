@@ -78,7 +78,7 @@ public class AvaliacaoServiceImpl implements AvaliacaoService {
     }
 
     @Override
-    public ReturnAvaliacaoDTO findAvaliacaoByNotaId(Integer id) {
+    public ReturnAvaliacaoDTO findByNotaId(Integer id) {
         Nota nota = notaService.findById(id);
         Avaliacao avaliacao = notaRepository.findAvalicaoByIdNota(nota.getId());
         ReturnAvaliacaoDTO avaliacaoDTO = findByIdReturnDTO(avaliacao.getId());
@@ -87,7 +87,7 @@ public class AvaliacaoServiceImpl implements AvaliacaoService {
     }
 
     @Override
-    public List<Avaliacao> findAvaliacoesByMateriaId(Integer id) {
+    public List<Avaliacao> findByMateriaId(Integer id) {
         Materia materia = materiaService.findById(id);
         List<Avaliacao> avaliacaoList = avaliacaoRepository.findByMateriaId(materia.getId());
 

@@ -22,13 +22,7 @@ public class MateriaProfessorServiceImpl implements MateriaProfessorService {
     private MateriaProfessorRepository materiaProfessorRepository;
 
     @Autowired
-    private MateriaRepository materiaRepository;
-
-    @Autowired
     private MateriaService materiaService;
-
-    @Autowired
-    private ProfessorRepository professorRepository;
 
     @Autowired
     private ProfessorService professorService;

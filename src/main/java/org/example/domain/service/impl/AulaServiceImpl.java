@@ -9,6 +9,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,13 @@ public class AulaServiceImpl implements AulaService {
     private ProfessorService professorService;
 
     @Autowired
+    private ProfessorRepository professorRepository;
+
+    @Autowired
     private MateriaService materiaService;
+
+    @Autowired
+    private MateriaRepository materiaRepository;
 
     @Autowired
     private TurmaService turmaService;
@@ -33,7 +40,7 @@ public class AulaServiceImpl implements AulaService {
         Professor professor = professorService.findById(aulaDTO.getProfessor());
         Materia materia = materiaService.findById(aulaDTO.getMateria());
         Turma turma = turmaService.findById(aulaDTO.getTurma());
-        Aula aula = new Aula(aulaDTO.getData(), professor, materia, turma, aulaDTO.getPeriodo());
+        Aula aula = new Aula(aulaDTO.getData(), professor, materia, turma);
 
         return aulaRepository.save(aula).getId();
     }
@@ -66,6 +73,30 @@ public class AulaServiceImpl implements AulaService {
     }
 
     @Override
+    public List<ReturnAulaInProfessorDTO> findByProfessorId(Integer id) {
+        List<ReturnAulaInProfessorDTO> informacoesAulaByIdProfessorDTO = new ArrayList<>();
+
+        return professorRepository.findById(id)
+                .map(professor -> {
+                    List<Aula> aulas = aulaRepository.findByProfessorId(professor.getId()).orElseThrow(
+                            () -> new EntityNotFoundException("O professor com o ID: " + id + " não possui nenhuma aula"));
+
+                    aulas.stream()
+                            .map(aula -> {
+                                Materia materia = materiaRepository.findById(aula.getMateria().getId())
+                                        .orElseThrow(() -> new EntityNotFoundException("Materia não encontrada"));
+                                CompleteMateriaDTO materiaDTO = new CompleteMateriaDTO(materia.getNome());
+                                return new ReturnAulaInProfessorDTO(aula.getData(), materiaDTO);
+                            })
+                            .forEach(informacoesAulaByIdProfessorDTO::add);
+
+                    return informacoesAulaByIdProfessorDTO;
+                })
+                .orElseThrow(() -> new EntityNotFoundException("Não existe nenhum professor com o ID: " + id));
+
+    }
+
+    @Override
     public List<ReturnAulaDTO> filterAll(CompleteAulaDTO aulaDTO) {
         ExampleMatcher matcher = ExampleMatcher
                 .matching()
@@ -92,7 +123,7 @@ public class AulaServiceImpl implements AulaService {
 
         Turma turma = new Turma(turmaDTO.getNome(), sala);
 
-        Aula aula = new Aula(aulaDTO.getData(), professor, materia, turma, aulaDTO.getPeriodo());
+        Aula aula = new Aula(aulaDTO.getData(), professor, materia, turma);
 
         Example example = Example.of(aula, matcher);
         List<Aula> aulas = aulaRepository.findAll(example);

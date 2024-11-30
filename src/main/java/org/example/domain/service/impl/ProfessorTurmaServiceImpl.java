@@ -34,13 +34,4 @@ public class ProfessorTurmaServiceImpl implements ProfessorTurmaService {
         ProfessorTurma professorTurma = new ProfessorTurma(professor, turma);
         return professorTurmaRepository.save(professorTurma).getId();
     }
-
-    @Override
-    public List<Professor> findProfessoresByIdTurma(Integer id) {
-        Turma turma = turmaService.findById(id);
-
-        List<Professor> professores = professorTurmaRepository.findProfessoresByTurmaId(turma.getId());
-
-        return professores;
-    }
 }

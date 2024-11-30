@@ -33,16 +33,7 @@ public class NotaServiceImpl implements NotaService {
     private AlunoService alunoService;
 
     @Autowired
-    private AvaliacaoRepository avaliacaoRepository;
-
-    @Autowired
     private AvaliacaoService avaliacaoService;
-
-    @Autowired
-    private MateriaService materiaService;
-
-    @Autowired
-    private AvaliacaoTurmaService avaliacaoTurmaService;
 
     @Override
     public Integer save(CompleteNotaDTO notaDTO) {
@@ -72,7 +63,7 @@ public class NotaServiceImpl implements NotaService {
     public ReturnNotaDTO findByIdReturnDTO(Integer id) {
         Nota nota = findById(id);
 
-        ReturnAvaliacaoDTO avaliacaoDTO = avaliacaoService.findAvaliacaoByNotaId(nota.getId());
+        ReturnAvaliacaoDTO avaliacaoDTO = avaliacaoService.findByNotaId(nota.getId());
         CompleteAlunoDTO alunoDTO = alunoService.findAlunoByIdNota(nota.getId());
         ReturnNotaDTO notaDTO = new ReturnNotaDTO(nota.getNota(), avaliacaoDTO, alunoDTO);
 

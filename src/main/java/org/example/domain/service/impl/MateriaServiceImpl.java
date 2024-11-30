@@ -24,31 +24,13 @@ public class MateriaServiceImpl implements MateriaService {
     private MateriaService materiaService;
 
     @Autowired
-    private TurmaRepository turmaRepository;
-
-    @Autowired
     private TurmaService turmaService;
 
     @Autowired
     private MateriaTurmaRepository materiaTurmaRepository;
 
     @Autowired
-    private MateriaTurmaService materiaTurmaService;
-
-    @Autowired
-    private MateriaProfessorRepository materiaProfessorRepository;
-
-    @Autowired
-    private MateriaProfessorService materiaProfessorService;
-
-    @Autowired
-    private ProfessorRepository professorRepository;
-
-    @Autowired
     private ProfessorService professorService;
-
-    @Autowired
-    private AvaliacaoRepository avaliacaoRepository;
 
     @Autowired
     private AvaliacaoService avaliacaoService;
@@ -91,10 +73,9 @@ public class MateriaServiceImpl implements MateriaService {
 
         List<CompleteMateriaDTO> materiasDTO = new ArrayList<>();
 
-        for (Integer i = 0; i < materias.size(); i++){
-            CompleteMateriaDTO materiaDTO = new CompleteMateriaDTO(materias.get(i).getNome());
-            materiasDTO.add(materiaDTO);
-        }
+        materias.stream()
+                .map( materia -> materiasDTO.add(new CompleteMateriaDTO(materia.getNome())))
+                .collect(Collectors.toList());
 
         return materiasDTO;
     }
@@ -114,14 +95,13 @@ public class MateriaServiceImpl implements MateriaService {
 
         Professor professor = professorService.findById(idProfessor);
 
-        List<Materia> materias = materiaRepository.findByIdTurmaAndIdProfessor(idTurma, idProfessor);
+        List<Materia> materias = materiaRepository.findByIdTurmaAndIdProfessor(turma.getId(), professor.getId());
 
         List<CompleteMateriaDTO> materiasDTO = new ArrayList<>();
 
-        for (Integer i = 0; i < materias.size(); i++){
-            CompleteMateriaDTO materiaDTO = new CompleteMateriaDTO(materias.get(i).getNome());
-            materiasDTO.add(materiaDTO);
-        }
+        materias.stream()
+                .map( materia -> materiasDTO.add(new CompleteMateriaDTO(materia.getNome())))
+                .collect(Collectors.toList());
 
         return materiasDTO;
     }
@@ -169,29 +149,31 @@ public class MateriaServiceImpl implements MateriaService {
            throw new RegraNegocioException("Nao é possivel realizar a operação. Matéria possui relação com professor(es) " + nomeProfessores + "remova a relação.");
        }
 
-       //VALIDA SE MATÉRIA POSSUI RELAÇÃO COM TURMA
-        List<MateriaTurma> materiaTurmaList = materiaTurmaService.findMateriaTurmaByMateriaId(materia.getId());
-        if (!materiaTurmaList.isEmpty()){
-            List<String> nomeTurmas = new ArrayList<>();
+        //VALIDA SE MATÉRIA POSSUI RELAÇÃO COM TURMA
+        List<Turma> turmas = turmaService.findByMateriaId(materia.getId());
 
-            materiaTurmaList.forEach(materiaTurma ->
-                    nomeTurmas.add(materiaTurma.getMateria().getNome()));
+        if(!turmas.isEmpty()){
+            StringBuilder nomeTurmas = new StringBuilder();
 
-            throw new RegraNegocioException("Matéria não pode ser excluida, pois as turmas: " + nomeTurmas.toString() + " possuem relação com matéria");
+            turmas.stream()
+                    .map( turma -> nomeTurmas.append(turma.getNome() + ", "))
+                    .collect(Collectors.toList());
+            throw new RegraNegocioException("Não é possivel realizar a operação. Materia possui relação com a(s) turma(s) " + nomeTurmas + "remova a relação");
         }
 
         // VALIDA SE MATÉRIA POSSUI RELAÇÃO COM AVALIAÇÃO
-        List<Avaliacao> avaliacaoList = avaliacaoService.findAvaliacoesByMateriaId(materia.getId());
-        if (!avaliacaoList.isEmpty()){
-            List<Integer> idAvaliação = new ArrayList<>();
+        List<Avaliacao> avaliacoes = avaliacaoService.findByMateriaId(materia.getId());
 
-            avaliacaoList.forEach(avaliacao ->
-                    idAvaliação.add(avaliacao.getId()));
+        if (!avaliacoes.isEmpty()){
+            StringBuilder nAvaliacao = new StringBuilder();
 
-            throw new RegraNegocioException("Matéria não pode ser excluida, pois as turmas com ID: " + idAvaliação + " possuem relação com matéria");
+            avaliacoes.stream()
+                    .map( avaliacao -> nAvaliacao.append(avaliacao.getNumeroAvaliacao() + ", "))
+                    .collect(Collectors.toList());
+
+            throw new RegraNegocioException("Essa matéria possui relação com a(s) avaliação(ões) " + nAvaliacao + "a matéria da sua avaliação ficará com '(Excluída)' ao lado do nome.");
         }
 
-        materia.setPresent(false);
         materiaRepository.save(materia);
     }
 }

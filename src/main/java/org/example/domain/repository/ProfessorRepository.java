@@ -28,4 +28,11 @@ public interface ProfessorRepository extends JpaRepository<Professor, Integer> {
             "WHERE MP.materia.id = :id_materia " +
             "AND MP.isPresent = true")
     List<Professor> findByMateriaId(@Param("id_materia") Integer idMateria);
+
+    @Query("SELECT P " +
+            "FROM PROFESSOR P " +
+            "JOIN PROFESSOR_TURMA PT ON PT.professor.id = P.id " +
+            "WHERE PT.turma.id = :id_turma " +
+            "AND PT.isPresent = true")
+    List<Professor> findByTurmaId(@Param("id_turma") Integer id);
 }
