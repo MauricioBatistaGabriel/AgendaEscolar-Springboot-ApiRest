@@ -73,10 +73,10 @@ public class AlunoServiceImpl implements AlunoService, UserDetailsService {
                         return aluno;
                     }
                     else{
-                        throw new EntityNotFoundException("Aluno com o ID:" + id + " foi deletado");
+                        throw new EntityNotFoundException("Aluno com o ID: " + id + " foi deletado");
                     }
                 }).orElseThrow( () ->
-                        new EntityNotFoundException("Aluno com o ID:" + id + " não encontrado"));
+                        new EntityNotFoundException("Aluno com o ID: " + id + " não encontrado"));
     }
 
     @Override

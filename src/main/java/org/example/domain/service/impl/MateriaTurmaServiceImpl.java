@@ -42,22 +42,4 @@ public class MateriaTurmaServiceImpl implements MateriaTurmaService{
         MateriaTurma materiaTurma = new MateriaTurma(materia1, turma1);
         return materiaTurmaRepository.save(materiaTurma).getId();
     }
-
-    @Override
-    public List<MateriaTurma> findMateriaTurmaByMateriaId(Integer id) {
-        Materia materia = materiaService.findById(id);
-
-        List<MateriaTurma> materiaTurmaList = materiaTurmaRepository.findByMateriaId(materia.getId());
-
-        return materiaTurmaList;
-    }
-
-    @Override
-    public List<MateriaTurma> findMateriaTurmaByTurmaId(Integer id) {
-        Turma turma = turmaService.findById(id);
-
-        List<MateriaTurma> materiaTurmaList = materiaTurmaRepository.findByTurmaId(turma.getId());
-
-        return materiaTurmaList;
-    }
 }

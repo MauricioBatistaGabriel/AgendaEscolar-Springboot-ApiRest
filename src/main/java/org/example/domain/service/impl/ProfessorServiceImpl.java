@@ -1,5 +1,6 @@
 package org.example.domain.service.impl;
 
+import org.example.domain.entity.Aula;
 import org.example.domain.entity.Materia;
 import org.example.domain.entity.Professor;
 import org.example.domain.entity.Turma;
@@ -60,15 +61,10 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
         Professor professor1 = professorRepository.save(professor);
 
         if (professorDTO.getMaterias().size() != 0){
-
-            for(Integer index = 0; index < professorDTO.getMaterias().size(); index++){
-                Materia materia = materiaService.findById(professorDTO.getMaterias().get(index));
-
-                CompleteMateriaProfessorDTO materiaProfessorDTO = new CompleteMateriaProfessorDTO(materia.getId(), professor1.getId());
-
-                materiaProfessorService.save(materiaProfessorDTO);
-            }
-
+            professorDTO.getMaterias().stream()
+                    .map(materiaId -> materiaService.findById(materiaId))
+                    .map(materia -> new CompleteMateriaProfessorDTO(materia.getId(), professor1.getId()))
+                    .forEach(materiaProfessorDTO -> materiaProfessorService.save(materiaProfessorDTO));
         }
         else{
             throw new EntityNotFoundException("Nenhuma máteria foi selecionada");
@@ -130,11 +126,9 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
 
         List<CompleteMateriaDTO> materiasDTO = new ArrayList<>();
 
-        for (int index = 0; index < materias.size(); index++){
-            CompleteMateriaDTO materiaDTO = new CompleteMateriaDTO(materias.get(index).getNome());
-
-            materiasDTO.add(materiaDTO);
-        }
+        materias.stream()
+                .map( materia -> materiasDTO.add(new CompleteMateriaDTO(materia.getNome())))
+                .collect(Collectors.toList());
 
         ReturnCompleteProfessorDTO professoresDTO = new ReturnCompleteProfessorDTO(professor.getNome(), professor.getCpf(), materiasDTO, professor.getPeriodosDeTrabalho());
 
@@ -156,27 +150,6 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
     }
 
     @Override
-    public List<ReturnAulaInProfessorDTO> findAulaByIdProfessor(Integer id) {
-        List<ReturnAulaInProfessorDTO> informacoesAulaByIdProfessorDTO = new ArrayList<>();
-
-        return professorRepository.findById(id)
-                .map( p -> {
-                    aulaRepository.findAulaByIdProfessor(p.getId())
-                            .map( aulas -> {
-
-                                for (Integer i = 0; i < aulas.size(); i++) {
-                                    Materia materia = materiaRepository.findById(aulas.get(i).getMateria().getId()).get();
-                                    CompleteMateriaDTO materiaDTO = new CompleteMateriaDTO(materia.getNome());
-                                    ReturnAulaInProfessorDTO aulaByIdProfessorDTO = new ReturnAulaInProfessorDTO(aulas.get(i).getData(), materiaDTO);
-                                    informacoesAulaByIdProfessorDTO.add(aulaByIdProfessorDTO);
-                                }
-                                return informacoesAulaByIdProfessorDTO;
-                            }).orElseThrow( () -> new EntityNotFoundException("O professor com o ID:" + id + " não possui nenhuma aula"));
-                    return informacoesAulaByIdProfessorDTO;
-                }).orElseThrow(() -> new EntityNotFoundException("Não existe nenhum professor com o ID:" + id));
-    }
-
-    @Override
     public List<ReturnProfessorDTO> findProfessoresDTOByIdTurma(Integer id) {
         Turma turma = turmaService.findById(id);
 
@@ -184,11 +157,9 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
 
         List<Professor> professores = professorTurmaRepository.findProfessoresByTurmaId(turma.getId());
 
-        for ( int index = 0; index < professores.size(); index++){
-            ReturnProfessorDTO professorDTO = new ReturnProfessorDTO(professores.get(index).getNome(), professores.get(index).getCpf(), professores.get(index).getPeriodosDeTrabalho());
-
-            professoresDTO.add(professorDTO);
-        }
+        professores.stream()
+                .map( professor -> professoresDTO.add(new ReturnProfessorDTO(professor.getNome(), professor.getCpf(), professor.getPeriodosDeTrabalho())))
+                .collect(Collectors.toList());
 
         return professoresDTO;
     }
@@ -199,6 +170,14 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
 
         List<Professor> professores = professorRepository.findByMateriaId(materia.getId());
 
+        return professores;
+    }
+
+    @Override
+    public List<Professor> findByTurmaId(Integer id) {
+        Turma turma = turmaService.findById(id);
+
+        List<Professor> professores = professorRepository.findByTurmaId(turma.getId());
         return professores;
     }
 

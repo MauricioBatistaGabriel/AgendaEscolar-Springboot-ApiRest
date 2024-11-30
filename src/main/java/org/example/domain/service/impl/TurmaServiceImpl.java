@@ -20,9 +20,6 @@ public class TurmaServiceImpl implements TurmaService {
     private TurmaRepository turmaRepository;
 
     @Autowired
-    private SalaRepository salaRepository;
-
-    @Autowired
     private SalaService salaService;
 
     @Autowired
@@ -32,16 +29,10 @@ public class TurmaServiceImpl implements TurmaService {
     private ProfessorTurmaService professorTurmaService;
 
     @Autowired
-    private MateriaRepository materiaRepository;
-
-    @Autowired
     private MateriaService materiaService;
 
     @Autowired
     private MateriaTurmaService materiaTurmaService;
-
-    @Autowired
-    private AlunoRepository alunoRepository;
 
     @Autowired
     private AlunoService alunoService;
@@ -87,14 +78,10 @@ public class TurmaServiceImpl implements TurmaService {
 
 //      CRIA RELAÇÃO MATÉRIA-TURMA
         if (turmaDTO.getMaterias().size() != 0){
-
-            for(Integer index = 0; index < turmaDTO.getMaterias().size(); index++){
-                Materia materia = materiaService.findById(turmaDTO.getMaterias().get(index));
-
-                CompleteMateriaTurmaDTO materiaTurmaDTO = new CompleteMateriaTurmaDTO(materia.getId(), turma1.getId());
-
-                materiaTurmaService.save(materiaTurmaDTO);
-            }
+            turmaDTO.getMaterias().stream()
+                    .map(materiaId -> materiaService.findById(materiaId))
+                    .map(materia -> new CompleteMateriaTurmaDTO(materia.getId(), turma1.getId()))
+                    .forEach(materiaTurmaDTO -> materiaTurmaService.save(materiaTurmaDTO));
         }
         else{
             throw new EntityNotFoundException("Nenhuma máteria foi selecionada");
@@ -102,14 +89,10 @@ public class TurmaServiceImpl implements TurmaService {
 
         //CRIA RELAÇÃO PROFESSOR-TURMA
         if (turmaDTO.getProfessores().size() != 0){
-
-            for(Integer index = 0; index < turmaDTO.getProfessores().size(); index++){
-                Professor professor = professorService.findById(turmaDTO.getProfessores().get(index));
-
-                CompleteProfessorTurmaDTO professorTurmaDTO = new CompleteProfessorTurmaDTO(professor.getId(), turma1.getId());
-
-                professorTurmaService.save(professorTurmaDTO);
-            }
+            turmaDTO.getProfessores().stream()
+                    .map(professorId -> professorService.findById(professorId))
+                    .map(professor -> new CompleteProfessorTurmaDTO(professor.getId(), turma1.getId()))
+                    .forEach(professorTurmaDTO -> professorTurmaService.save(professorTurmaDTO));
         }
         else{
             throw new EntityNotFoundException("Nenhum professor foi selecionado");
@@ -160,6 +143,14 @@ public class TurmaServiceImpl implements TurmaService {
         CompleteSalaDTO salaDTO = new CompleteSalaDTO(turma.getSala().getSala(), turma.getSala().getPeriodosDisponiveis());
         ReturnTurmaInOtherClassDTO turmaDTO = new ReturnTurmaInOtherClassDTO(turma.getNome(), salaDTO);
         return turmaDTO;
+    }
+
+    @Override
+    public List<Turma> findByMateriaId(Integer id) {
+        Materia materia = materiaService.findById(id);
+
+        List<Turma> turmas = turmaRepository.findByMateriaId(materia.getId());
+        return turmas;
     }
 
     //MÉTODO NÃO BUSCA TURMA POR MATÉRIA

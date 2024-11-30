@@ -24,7 +24,4 @@ public class CompleteAulaDTO {
 
     @NotNull(message = "{campo.turma}")
     private Integer turma;
-
-    @NotNull(message = "{campo.periodo}")
-    private Periodo periodo;
 }

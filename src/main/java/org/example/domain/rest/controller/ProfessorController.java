@@ -7,6 +7,7 @@ import org.example.domain.rest.dto.*;
 import org.example.domain.security.jwt.JwtService;
 import org.example.domain.service.ProfessorService;
 import org.example.domain.service.ProfessorTurmaService;
+import org.example.domain.service.impl.AulaServiceImpl;
 import org.example.domain.service.impl.ProfessorServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,7 @@ public class ProfessorController {
     private ProfessorServiceImpl professorService;
 
     @Autowired
-    private ProfessorTurmaService professorTurmaService;
+    private AulaServiceImpl aulaService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -65,13 +66,13 @@ public class ProfessorController {
     }
 
     @GetMapping("/aulas/{id}")
-    public List<ReturnAulaInProfessorDTO> findAulaByIdProfessor(@PathVariable Integer id){
-        return professorService.findAulaByIdProfessor(id);
+    public List<ReturnAulaInProfessorDTO> findAulaByProfessorId(@PathVariable Integer id){
+        return aulaService.findByProfessorId(id);
     }
 
     @GetMapping("/turma/{id}")
-    public List<Professor> findProfessorByIdTurma(@PathVariable Integer id){
-        return professorTurmaService.findProfessoresByIdTurma(id);
+    public List<Professor> findByTurmaId(@PathVariable Integer id){
+        return professorService.findByTurmaId(id);
     }
 
     @GetMapping("/materia/{idMateria}")

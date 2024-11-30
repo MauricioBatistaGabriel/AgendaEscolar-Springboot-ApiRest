@@ -9,6 +9,9 @@ import java.util.Optional;
 
 public interface AulaRepository extends JpaRepository<Aula, Integer> {
 
-    @Query("SELECT a FROM AULA a WHERE a.professor.id = :id")
-    public Optional<List<Aula>> findAulaByIdProfessor(@Param("id") Integer id);
+    @Query("SELECT a " +
+            "FROM AULA a " +
+            "WHERE a.professor.id = :id " +
+            "AND a.isPresent = true")
+    public Optional<List<Aula>> findByProfessorId(@Param("id") Integer id);
 }

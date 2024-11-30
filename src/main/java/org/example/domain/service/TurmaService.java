@@ -14,6 +14,7 @@ public interface TurmaService {
     ReturnTurmaDTO findByIdReturnDTO(Integer id);
     ReturnTurmaInOtherClassDTO findByIdTurmaInOtherClass(Integer id);
     ReturnTurmaInOtherClassDTO findTurmaByIdAvaliacao(Integer id);
+    List<Turma> findByMateriaId(Integer id);
     List<ReturnTurmaDTO> filterAll(CompleteTurmaDTO turmaDTO);
     Turma update(Integer id, Turma turma);
     void deleteById(Integer id);
