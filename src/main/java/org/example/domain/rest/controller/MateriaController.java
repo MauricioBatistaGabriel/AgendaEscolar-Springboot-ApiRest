@@ -29,7 +29,8 @@ public class MateriaController {
     }
 
     @GetMapping
-    public List<CompleteMateriaDTO> filterAll(@RequestBody CompleteMateriaDTO materiaDTO){
+    public List<CompleteMateriaDTO> filterAll(){
+        CompleteMateriaDTO materiaDTO = new CompleteMateriaDTO();
         return materiaService.filterAll(materiaDTO);
     }
 
