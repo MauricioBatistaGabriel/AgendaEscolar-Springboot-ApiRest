@@ -1,6 +1,5 @@
 package org.example.domain.config;
 
-import org.example.domain.entity.UsuarioAdm;
 import org.example.domain.security.jwt.JwtAuthFilter;
 import org.example.domain.security.jwt.JwtService;
 import org.example.domain.service.impl.AlunoServiceImpl;
@@ -8,7 +7,6 @@ import org.example.domain.service.impl.ProfessorServiceImpl;
 import org.example.domain.service.impl.UsuarioAdmServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -65,9 +63,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .cors()
-                .and()
-                .csrf().disable()
+                .cors().and().csrf().disable()
                 .authorizeRequests()
 
                 //USUARIO CONTROLLER
@@ -133,7 +129,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:3000");
+        config.addAllowedOrigin("http://localhost:3001");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);

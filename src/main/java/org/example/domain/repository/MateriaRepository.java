@@ -1,7 +1,9 @@
 package org.example.domain.repository;
 
 import org.example.domain.entity.Materia;
+import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -21,4 +23,9 @@ public interface MateriaRepository extends JpaRepository<Materia, Integer> {
             "FROM MATERIA M " +
             "JOIN MATERIA_PROFESSOR MP ON MP.professor.id = :id_professor")
     List<Materia> findMateriasByProfessorId(@Param("id_professor") Integer idProfessor);
+
+    @Query("SELECT M " +
+            "FROM MATERIA M " +
+            "ORDER BY M.id DESC")
+    List<Materia> findAllOrderByIdDesc();
 }

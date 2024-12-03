@@ -35,4 +35,13 @@ public interface ProfessorRepository extends JpaRepository<Professor, Integer> {
             "WHERE PT.turma.id = :id_turma " +
             "AND PT.isPresent = true")
     List<Professor> findByTurmaId(@Param("id_turma") Integer id);
+
+    @Query("SELECT P " +
+            "FROM PROFESSOR P " +
+            "WHERE P.isPresent = true " +
+            "ORDER BY P.id DESC")
+    List<Professor> findAllOrderByIdDesc();
+
+    @Query(value = "SELECT CASE WHEN STR_TO_DATE(:dataString, '%d/%m/%Y') >= CURDATE() THEN TRUE ELSE FALSE END FROM dual", nativeQuery = true)
+    boolean possuiAulaAgendada(@Param("dataString") String dataString);
 }

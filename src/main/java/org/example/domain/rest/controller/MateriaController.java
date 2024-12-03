@@ -2,6 +2,7 @@ package org.example.domain.rest.controller;
 
 import org.example.domain.entity.Materia;
 import org.example.domain.rest.dto.CompleteMateriaDTO;
+import org.example.domain.rest.dto.ReturnMateriaDTO;
 import org.example.domain.service.MateriaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +30,8 @@ public class MateriaController {
     }
 
     @GetMapping
-    public List<CompleteMateriaDTO> filterAll(){
-        CompleteMateriaDTO materiaDTO = new CompleteMateriaDTO();
-        return materiaService.filterAll(materiaDTO);
+    public List<ReturnMateriaDTO> filterAll(){
+        return materiaService.findAll();
     }
 
     @GetMapping("turma/{idTurma}/professor/{idProfessor}")

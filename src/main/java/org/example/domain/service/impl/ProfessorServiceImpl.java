@@ -5,6 +5,7 @@ import org.example.domain.entity.Materia;
 import org.example.domain.entity.Professor;
 import org.example.domain.entity.Turma;
 import org.example.domain.enums.Periodo;
+import org.example.domain.exception.RegraNegocioException;
 import org.example.domain.exception.SenhaInvalidaException;
 import org.example.domain.repository.AulaRepository;
 import org.example.domain.repository.MateriaRepository;
@@ -23,8 +24,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
+import javax.print.attribute.standard.DateTimeAtCompleted;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,16 +40,13 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
     private AulaRepository aulaRepository;
 
     @Autowired
-    private MateriaRepository materiaRepository;
-
-    @Autowired
     private ProfessorTurmaRepository professorTurmaRepository;
 
     @Autowired
-    private MateriaService materiaService;
+    private MateriaServiceImpl materiaService;
 
     @Autowired
-    private TurmaService turmaService;
+    private TurmaServiceImpl turmaService;
 
     @Autowired
     private MateriaProfessorService materiaProfessorService;
@@ -113,7 +113,7 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
     public ReturnProfessorDTO findByIdReturnDTO(Integer id) {
         Professor professor = findById(id);
 
-        ReturnProfessorDTO professorDTO = new ReturnProfessorDTO(professor.getNome(), professor.getCpf(), professor.getPeriodosDeTrabalho());
+        ReturnProfessorDTO professorDTO = new ReturnProfessorDTO(professor.getId(), professor.getNome(), professor.getCpf(), professor.getPeriodosDeTrabalho());
 
         return professorDTO;
     }
@@ -143,7 +143,7 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
 
         List<ReturnProfessorDTO> professoresDTO =
                 professores.stream()
-                        .map(professor -> new ReturnProfessorDTO(professor.getNome(), professor.getCpf(), professor.getPeriodosDeTrabalho()))
+                        .map(professor -> new ReturnProfessorDTO(professor.getId(), professor.getNome(), professor.getCpf(), professor.getPeriodosDeTrabalho()))
                         .collect(Collectors.toList());
 
         return professoresDTO;
@@ -158,7 +158,7 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
         List<Professor> professores = professorTurmaRepository.findProfessoresByTurmaId(turma.getId());
 
         professores.stream()
-                .map( professor -> professoresDTO.add(new ReturnProfessorDTO(professor.getNome(), professor.getCpf(), professor.getPeriodosDeTrabalho())))
+                .map( professor -> professoresDTO.add(new ReturnProfessorDTO(professor.getId(), professor.getNome(), professor.getCpf(), professor.getPeriodosDeTrabalho())))
                 .collect(Collectors.toList());
 
         return professoresDTO;
@@ -182,21 +182,11 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
     }
 
     @Override
-    public List<ReturnProfessorDTO> filterAll(CompleteProfessorDTO professorDTO) {
-        ExampleMatcher matcher = ExampleMatcher
-                .matching()
-                .withIgnoreCase()
-                .withStringMatcher(
-                        ExampleMatcher.StringMatcher.CONTAINING
-                );
-
-        Professor professor = new Professor(professorDTO.getEmail(), professorDTO.getSenha(), professorDTO.getNome(), professorDTO.getCpf(), professorDTO.getPeriodosDeTrabalho());
-
-        Example example = Example.of(professor, matcher);
-        List<Professor> professores = professorRepository.findAll(example);
+    public List<ReturnProfessorDTO> findAll() {
+        List<Professor> professores = professorRepository.findAllOrderByIdDesc();
 
         return professores.stream()
-                .map( professor1 -> new ReturnProfessorDTO(professor1.getNome(), professor1.getCpf(), professor1.getPeriodosDeTrabalho()))
+                .map( professor1 -> new ReturnProfessorDTO(professor1.getId(), professor1.getNome(), professor1.getCpf(), professor1.getPeriodosDeTrabalho()))
                 .collect(Collectors.toList());
     }
 
@@ -212,6 +202,25 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
     @Override
     public void deleteById(Integer id) {
         Professor professor = findById(id);
+
+        List<Aula> aulas = aulaRepository.findByProfessorId(professor.getId()).orElse(Collections.emptyList());
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+
+        Date dataAtual = new Date();
+        String dataAtualFormatter = formatter.format(dataAtual);
+
+        Date dataAula;
+        aulas.stream()
+                .forEach(aula -> {
+                            try {
+                                if (formatter.parse(aula.getData()).after(formatter.parse(dataAtualFormatter))) {
+                                    throw new RegraNegocioException("Não foi possível realizar a operação. O professor possui aula agendada para data posterior à atual.");
+                                }
+                            } catch (ParseException e) {
+                                throw new RuntimeException("Erro ao parsear a data", e);
+                            }
+                        });
 
         professor.setPresent(false);
 
