@@ -21,7 +21,7 @@ public interface ProfessorService {
     List<ReturnProfessorDTO> findProfessoresDTOByIdTurma(Integer id);
     List<Professor> findByMateriaId(Integer id);
     List<Professor> findByTurmaId(Integer id);
-    List<ReturnProfessorDTO> filterAll(CompleteProfessorDTO professorDTO);
+    List<ReturnProfessorDTO> findAll();
     Professor update(Integer id, Professor professor);
     void deleteById(Integer id);
 }

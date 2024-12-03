@@ -81,8 +81,8 @@ public class ProfessorController {
     }
 
     @GetMapping
-    public List<ReturnProfessorDTO> filterAll(@RequestBody CompleteProfessorDTO professorDTO){
-        return professorService.filterAll(professorDTO);
+    public List<ReturnProfessorDTO> findAll(){
+        return professorService.findAll();
     }
 
     @PutMapping("{id}")

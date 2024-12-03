@@ -63,7 +63,7 @@ public class AulaServiceImpl implements AulaService {
     public ReturnAulaDTO findByIdReturnDTO(Integer id) {
         Aula aula = findById(id);
 
-        ReturnProfessorDTO professorDTO = new ReturnProfessorDTO(aula.getProfessor().getNome(), aula.getProfessor().getCpf(), aula.getProfessor().getPeriodosDeTrabalho());
+        ReturnProfessorDTO professorDTO = new ReturnProfessorDTO(aula.getProfessor().getId(), aula.getProfessor().getNome(), aula.getProfessor().getCpf(), aula.getProfessor().getPeriodosDeTrabalho());
         CompleteMateriaDTO materiaDTO = new CompleteMateriaDTO(aula.getMateria().getNome());
         CompleteSalaDTO salaDTO = new CompleteSalaDTO(aula.getTurma().getSala().getSala(), aula.getTurma().getSala().getPeriodosDisponiveis());
         ReturnTurmaInOtherClassDTO turmaDTO = new ReturnTurmaInOtherClassDTO(aula.getTurma().getNome(), salaDTO);

@@ -4,6 +4,7 @@ import org.example.domain.entity.*;
 import org.example.domain.exception.RegraNegocioException;
 import org.example.domain.repository.*;
 import org.example.domain.rest.dto.CompleteMateriaDTO;
+import org.example.domain.rest.dto.ReturnMateriaDTO;
 import org.example.domain.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -107,21 +108,11 @@ public class MateriaServiceImpl implements MateriaService {
     }
 
     @Override
-    public List<CompleteMateriaDTO> filterAll(CompleteMateriaDTO materiaDTO) {
-        ExampleMatcher matcher = ExampleMatcher
-                .matching()
-                .withIgnoreCase()
-                .withStringMatcher(
-                        ExampleMatcher.StringMatcher.CONTAINING
-                );
-
-        Materia materia = new Materia(materiaDTO.getNome());
-
-        Example example = Example.of(materia, matcher);
-        List<Materia> materias = materiaRepository.findAll(example);
+    public List<ReturnMateriaDTO> findAll() {
+        List<Materia> materias = materiaRepository.findAllOrderByIdDesc();
 
         return materias.stream()
-                .map(m -> new CompleteMateriaDTO(m.getNome()))
+                .map(m -> new ReturnMateriaDTO(m.getId(), m.getNome()))
                 .collect(Collectors.toList());
     }
 
