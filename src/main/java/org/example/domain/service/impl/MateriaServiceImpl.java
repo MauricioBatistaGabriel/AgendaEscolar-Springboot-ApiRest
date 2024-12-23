@@ -51,10 +51,10 @@ public class MateriaServiceImpl implements MateriaService {
                         return materia;
                     }
                     else {
-                    throw new EntityNotFoundException("Matéria com o ID:" + id + " foi deletada");
+                    throw new EntityNotFoundException("Matéria não existe");
                     }
                 }).orElseThrow( () ->
-                        new EntityNotFoundException("Matéria com o ID:" + id + " não encontrada"));
+                        new EntityNotFoundException("Matéria não encontrada"));
     }
 
     @Override
@@ -67,7 +67,7 @@ public class MateriaServiceImpl implements MateriaService {
     }
 
     @Override
-    public List<CompleteMateriaDTO> findMateriasByIdTurma(Integer id) {
+    public List<CompleteMateriaDTO> findByIdTurma(Integer id) {
         Turma turma = turmaService.findById(id);
 
         List<Materia> materias = materiaTurmaRepository.findMateriasByIdTurma(turma.getId());
@@ -82,16 +82,16 @@ public class MateriaServiceImpl implements MateriaService {
     }
 
     @Override
-    public List<Materia> findMateriasByProfessorId(Integer id) {
+    public List<Materia> findByProfessorId(Integer id) {
         Professor professor = professorService.findById(id);
 
-        List<Materia> materias = materiaRepository.findMateriasByProfessorId(professor.getId());
+        List<Materia> materias = materiaRepository.findByProfessorId(professor.getId());
 
         return materias;
     }
 
     @Override
-    public List<CompleteMateriaDTO> findMateriaByIdTurmaAndIdProfessor(Integer idTurma, Integer idProfessor) {
+    public List<CompleteMateriaDTO> findByIdTurmaAndIdProfessor(Integer idTurma, Integer idProfessor) {
         Turma turma = turmaService.findById(idTurma);
 
         Professor professor = professorService.findById(idProfessor);

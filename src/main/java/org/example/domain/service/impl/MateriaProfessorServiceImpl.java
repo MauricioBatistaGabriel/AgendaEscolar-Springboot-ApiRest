@@ -36,4 +36,13 @@ public class MateriaProfessorServiceImpl implements MateriaProfessorService {
         MateriaProfessor materiaProfessor = new MateriaProfessor(materia, professor);
         return materiaProfessorRepository.save(materiaProfessor).getId();
     }
+
+    @Override
+    public void deleteByMateriaIdAndProfessorId(Integer materiaId, Integer professorId) {
+        Materia materia = materiaService.findById(materiaId);
+
+        Professor professor = professorService.findById(professorId);
+
+        materiaProfessorRepository.deleteByMateriaIdAndProfessorId(materia.getId(), professor.getId());
+    }
 }

@@ -2,9 +2,14 @@ package org.example.domain.service.impl;
 
 import org.example.domain.entity.Aluno;
 import org.example.domain.entity.Nota;
+import org.example.domain.entity.Professor;
+import org.example.domain.entity.UsuarioAdm;
+import org.example.domain.exception.EntityNotDisponibleException;
 import org.example.domain.exception.SenhaInvalidaException;
 import org.example.domain.repository.AlunoRepository;
 import org.example.domain.repository.NotaRepository;
+import org.example.domain.repository.ProfessorRepository;
+import org.example.domain.repository.UsuarioAdmRepository;
 import org.example.domain.rest.dto.CompleteAlunoDTO;
 import org.example.domain.service.AlunoService;
 import org.example.domain.service.NotaService;
@@ -28,6 +33,12 @@ public class AlunoServiceImpl implements AlunoService, UserDetailsService {
     private AlunoRepository alunoRepository;
 
     @Autowired
+    private UsuarioAdmRepository usuarioAdmRepository;
+
+    @Autowired
+    private ProfessorRepository professorRepository;
+
+    @Autowired
     private NotaRepository notaRepository;
 
     @Autowired
@@ -39,6 +50,15 @@ public class AlunoServiceImpl implements AlunoService, UserDetailsService {
     @Override
     public Integer save(CompleteAlunoDTO alunoDTO) {
         Aluno aluno = new Aluno(alunoDTO.getEmail(), alunoDTO.getSenha(), alunoDTO.getNome(), alunoDTO.getCpf(), alunoDTO.getIdade());
+
+        //Valida se email de usuário está livre
+        UsuarioAdm userExist = usuarioAdmRepository.findByEmail(alunoDTO.getEmail()).orElse(null);
+        Aluno alunoExist = alunoRepository.findByEmail(alunoDTO.getEmail()).orElse(null);
+        Professor professorExist = professorRepository.findByEmail(alunoDTO.getEmail()).orElse(null);
+        if (userExist != null || alunoExist != null || professorExist != null){
+            throw new EntityNotDisponibleException("Email já está em uso");
+        }
+
         alunoRepository.save(aluno);
         return aluno.getId();
     }
@@ -55,7 +75,7 @@ public class AlunoServiceImpl implements AlunoService, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException{
         Aluno aluno = alunoRepository.findByEmail(email)
-                .orElseThrow( () -> new UsernameNotFoundException("Usuário não encontrado"));
+                .orElseThrow( () -> new EntityNotFoundException("Usuário não encontrado"));
 
         return User
                 .builder()
@@ -73,10 +93,10 @@ public class AlunoServiceImpl implements AlunoService, UserDetailsService {
                         return aluno;
                     }
                     else{
-                        throw new EntityNotFoundException("Aluno com o ID: " + id + " foi deletado");
+                        throw new EntityNotFoundException("Aluno não existe");
                     }
                 }).orElseThrow( () ->
-                        new EntityNotFoundException("Aluno com o ID: " + id + " não encontrado"));
+                        new EntityNotFoundException("Aluno não encontrado"));
     }
 
     @Override

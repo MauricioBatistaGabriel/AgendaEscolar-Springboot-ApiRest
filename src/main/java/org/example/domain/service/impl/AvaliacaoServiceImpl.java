@@ -60,10 +60,10 @@ public class AvaliacaoServiceImpl implements AvaliacaoService {
                         return avaliacao;
                     }
                     else {
-                        throw new EntityNotFoundException("Avaliação com o ID:" + id + " foi deletada");
+                        throw new EntityNotFoundException("Avaliação não existe");
                     }
                 }).orElseThrow( () ->
-                        new EntityNotFoundException("Avaliacão com o ID:" + id + " não encontrada"));
+                        new EntityNotFoundException("Avaliacão não encontrada"));
     }
 
     @Override

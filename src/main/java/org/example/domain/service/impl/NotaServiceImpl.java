@@ -27,9 +27,6 @@ public class NotaServiceImpl implements NotaService {
     private NotaService notaService;
 
     @Autowired
-    private AlunoRepository alunoRepository;
-
-    @Autowired
     private AlunoService alunoService;
 
     @Autowired
@@ -53,10 +50,10 @@ public class NotaServiceImpl implements NotaService {
                         return nota;
                     }
                     else {
-                        throw new EntityNotFoundException("Nota com o ID:" + id + " foi deletada");
+                        throw new EntityNotFoundException("Nota não existe");
                     }
                 }).orElseThrow( () ->
-                        new EntityNotFoundException("Nota com o ID:" + id + " não encontrada"));
+                        new EntityNotFoundException("Nota não encontrada"));
     }
 
     @Override

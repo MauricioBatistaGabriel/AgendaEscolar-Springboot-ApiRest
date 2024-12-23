@@ -87,8 +87,8 @@ public class ProfessorController {
 
     @PutMapping("{id}")
     @ResponseStatus(OK)
-    public Professor update(@PathVariable Integer id, @RequestBody @Valid Professor professor){
-        return professorService.update(id, professor);
+    public ReturnProfessorDTO update(@PathVariable Integer id, @RequestBody UpdateProfessorDTO updateProfessorDTO){
+        return professorService.update(id, updateProfessorDTO);
     }
 
     @DeleteMapping("{id}")

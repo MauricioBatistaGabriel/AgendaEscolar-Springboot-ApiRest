@@ -1,14 +1,15 @@
 package org.example.domain.entity;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
 import javax.persistence.*;
 
 @Entity(name = "MATERIA_PROFESSOR")
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class MateriaProfessor {
 
     @Id
