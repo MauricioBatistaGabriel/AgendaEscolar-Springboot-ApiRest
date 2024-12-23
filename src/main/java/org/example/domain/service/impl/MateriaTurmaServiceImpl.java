@@ -22,13 +22,7 @@ public class MateriaTurmaServiceImpl implements MateriaTurmaService{
     private MateriaTurmaRepository materiaTurmaRepository;
 
     @Autowired
-    private MateriaRepository materiaRepository;
-
-    @Autowired
     private MateriaService materiaService;
-
-    @Autowired
-    private TurmaRepository turmaRepository;
 
     @Autowired
     private TurmaService turmaService;

@@ -94,7 +94,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(GET, "/api/avaliacao/**").hasAnyRole("ADM", "ALUNO", "PROFESSOR")
 
                 //MATERIA CONTROLLER
-                .antMatchers(POST, "/api/materia").hasRole("ADM")
+                .antMatchers(POST, "/api/materia").permitAll()
                 .antMatchers(PUT, "/api/materia/{id}").hasRole("ADM")
                 .antMatchers(DELETE, "/api/materia/{id}").hasRole("ADM")
                 .antMatchers(GET, "/api/materia/**").hasAnyRole("ADM", "ALUNO", "PROFESSOR")
@@ -129,7 +129,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:3001");
+        config.addAllowedOrigin("http://localhost:3000");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);

@@ -11,8 +11,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.persistence.EntityNotFoundException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -55,23 +57,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private UserDetails getUserDetails(String username) {
         UserDetails userDetails = null;
-        try {
+
+        try{
             userDetails = alunoService.loadUserByUsername(username);
-        } catch (UsernameNotFoundException e) {
-        }
-        if (userDetails == null) {
-            try {
+        } catch (EntityNotFoundException e){
+            try{
                 userDetails = professorService.loadUserByUsername(username);
-            } catch (UsernameNotFoundException e) {
+            } catch (EntityNotFoundException e2){
+                try{
+                    userDetails = usuarioAdmService.loadUserByUsername(username);
+                }catch (EntityNotFoundException e3){
+
+                }
             }
+
         }
-        if (userDetails == null) {
-            try {
-                userDetails = usuarioAdmService.loadUserByUsername(username);
-            } catch (UsernameNotFoundException e) {
-            }
-        }
+
         return userDetails;
     }
+
 
 }

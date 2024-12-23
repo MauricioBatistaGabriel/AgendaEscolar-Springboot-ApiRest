@@ -1,16 +1,12 @@
 package org.example.domain.service.impl;
 
-import org.example.domain.entity.Aula;
-import org.example.domain.entity.Materia;
-import org.example.domain.entity.Professor;
-import org.example.domain.entity.Turma;
+import org.example.domain.entity.*;
 import org.example.domain.enums.Periodo;
+import org.example.domain.exception.EntityNotDisponibleException;
 import org.example.domain.exception.RegraNegocioException;
 import org.example.domain.exception.SenhaInvalidaException;
-import org.example.domain.repository.AulaRepository;
-import org.example.domain.repository.MateriaRepository;
-import org.example.domain.repository.ProfessorRepository;
-import org.example.domain.repository.ProfessorTurmaRepository;
+import org.example.domain.exception.ValorNuloEnviadoException;
+import org.example.domain.repository.*;
 import org.example.domain.rest.dto.*;
 import org.example.domain.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +36,12 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
     private AulaRepository aulaRepository;
 
     @Autowired
+    private UsuarioAdmRepository usuarioAdmRepository;
+
+    @Autowired
+    private AlunoRepository alunoRepository;
+
+    @Autowired
     private ProfessorTurmaRepository professorTurmaRepository;
 
     @Autowired
@@ -58,8 +60,18 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
     @Transactional
     public Integer save(CompleteProfessorDTO professorDTO) {
         Professor professor = new Professor(professorDTO.getEmail(), professorDTO.getSenha(), professorDTO.getNome(), professorDTO.getCpf(), professorDTO.getPeriodosDeTrabalho());
+
+        //Valida se email de usuário está livre
+        UsuarioAdm userExist = usuarioAdmRepository.findByEmail(professorDTO.getEmail()).orElse(null);
+        Aluno alunoExist = alunoRepository.findByEmail(professorDTO.getEmail()).orElse(null);
+        Professor professorExist = professorRepository.findByEmail(professorDTO.getEmail()).orElse(null);
+        if (userExist != null || alunoExist != null || professorExist != null){
+            throw new EntityNotDisponibleException("Email já está em uso");
+        }
+
         Professor professor1 = professorRepository.save(professor);
 
+        //VALIDA SE ALGUMA MATÉRIA FOI SALVA E SE SIM, CRIA MATERIA_PROFESSOR
         if (professorDTO.getMaterias().size() != 0){
             professorDTO.getMaterias().stream()
                     .map(materiaId -> materiaService.findById(materiaId))
@@ -67,7 +79,7 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
                     .forEach(materiaProfessorDTO -> materiaProfessorService.save(materiaProfessorDTO));
         }
         else{
-            throw new EntityNotFoundException("Nenhuma máteria foi selecionada");
+            throw new ValorNuloEnviadoException("Nenhuma máteria foi selecionada");
         }
 
         return professor.getId();
@@ -85,7 +97,7 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException{
         Professor professor = professorRepository.findByEmail(email)
-                .orElseThrow( () -> new UsernameNotFoundException("Usuário não encontrado"));
+                .orElseThrow( () -> new EntityNotFoundException("Usuário não encontrado"));
 
         return User
                 .builder()
@@ -103,10 +115,10 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
                         return professor;
                     }
                     else {
-                        throw new EntityNotFoundException("Professor com o ID:" + id + " foi deletado");
+                        throw new EntityNotFoundException("Professor não existe");
                     }
                 }).orElseThrow( () ->
-                        new EntityNotFoundException("Professor com o ID:" + id + " não encontrado"));
+                        new EntityNotFoundException("Professor não encontrado"));
     }
 
     @Override
@@ -122,7 +134,7 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
     public ReturnCompleteProfessorDTO findByIdReturnDTOComplete(Integer id) {
         Professor professor = findById(id);
 
-        List<Materia> materias = materiaService.findMateriasByProfessorId(professor.getId());
+        List<Materia> materias = materiaService.findByProfessorId(professor.getId());
 
         List<CompleteMateriaDTO> materiasDTO = new ArrayList<>();
 
@@ -186,18 +198,65 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
         List<Professor> professores = professorRepository.findAllOrderByIdDesc();
 
         return professores.stream()
-                .map( professor1 -> new ReturnProfessorDTO(professor1.getId(), professor1.getNome(), professor1.getCpf(), professor1.getPeriodosDeTrabalho()))
-                .collect(Collectors.toList());
+                .map(professor -> {
+                    List<ReturnMateriaDTO> materias = materiaService.findByProfessorId(professor.getId()).stream()
+                            .map(materia -> new ReturnMateriaDTO(materia.getId(), materia.getNome()))
+                            .collect(Collectors.toList());
+                    return new ReturnProfessorDTO(professor.getId(), professor.getNome(), professor.getCpf(), professor.getPeriodosDeTrabalho(), materias);
+                        }).collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
-    public Professor update(Integer id, Professor professor) {
-        Professor professor1 = findById(id);
+    public ReturnProfessorDTO update(Integer id, UpdateProfessorDTO professorDTO) {
+        Professor professorBanco = findById(id);
+        Professor professorNovo = Professor.builder()
+                .id(professorBanco.getId())
+                .nome(professorDTO.getNome())
+                .cpf(professorDTO.getCpf())
+                .periodosDeTrabalho(professorDTO.getPeriodosDeTrabalho())
+                .isPresent(true)
+                .build();
 
-        professor.setId(professor1.getId());
+        professorRepository.save(professorNovo);
 
-        return professorRepository.save(professor);
+        // Matérias que o professor possui atualmente
+        List<ReturnMateriaDTO> materiasDTOBanco = materiaService.findByProfessorId(professorBanco.getId()).stream()
+                .map(materia -> new ReturnMateriaDTO(materia.getId(), materia.getNome()))
+                .collect(Collectors.toList());
+
+        // Valida se as matérias presentes no professorBanco ainda estão presentes no ProfessorDTO
+        materiasDTOBanco.stream()
+                .forEach(materiaDTOBanco -> {
+                    boolean exists = professorDTO.getMaterias().stream()
+                            .anyMatch(materiaNova -> materiaNova.equals(materiaDTOBanco.getId()));
+                    if(!exists){
+                        materiaProfessorService.deleteByMateriaIdAndProfessorId(materiaDTOBanco.getId(), professorBanco.getId());
+                    }
+                });
+
+        // Valida se as matérias presentes no professorDTO já estão presentes no professorBanco
+        professorDTO.getMaterias().stream().forEach(materiaNova -> {
+            boolean exists = materiasDTOBanco.stream()
+                    .anyMatch(materiaDTOBanco -> materiaDTOBanco.getId().equals(materiaNova));
+            if (!exists) {
+                // Salva a nova matéria
+                CompleteMateriaProfessorDTO novaMateria = CompleteMateriaProfessorDTO.builder()
+                        .professor(professorNovo.getId())
+                        .materia(materiaNova)
+                        .build();
+                materiaProfessorService.save(novaMateria);
+            }
+        });
+
+        // Busca as matérias atualizadas e insere no professor para retornar
+        List<ReturnMateriaDTO> materiasAtualizadas = materiaService.findByProfessorId(professorBanco.getId()).stream()
+                .map(materia -> new ReturnMateriaDTO(materia.getId(), materia.getNome()))
+                .collect(Collectors.toList());
+
+        return new ReturnProfessorDTO(professorNovo.getId(), professorNovo.getNome(), professorNovo.getCpf(), professorNovo.getPeriodosDeTrabalho(), materiasAtualizadas);
     }
+
 
     @Override
     public void deleteById(Integer id) {

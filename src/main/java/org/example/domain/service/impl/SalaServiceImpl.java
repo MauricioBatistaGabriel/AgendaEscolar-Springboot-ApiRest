@@ -33,10 +33,10 @@ public class SalaServiceImpl implements SalaService {
                         return sala;
                     }
                     else {
-                        throw new EntityNotFoundException("Sala com o ID:" + id + " foi deletada");
+                        throw new EntityNotFoundException("Sala não existe");
                     }
                 }).orElseThrow( () ->
-                        new EntityNotFoundException("Sala com o ID:" + id + " não encontrada"));
+                        new EntityNotFoundException("Sala não encontrada"));
     }
 
     @Override

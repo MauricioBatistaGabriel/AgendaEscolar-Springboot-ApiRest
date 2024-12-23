@@ -53,10 +53,10 @@ public class AulaServiceImpl implements AulaService {
                         return aula;
                     }
                     else {
-                        throw new EntityNotFoundException("Aula com o ID:" + id + " foi deletada");
+                        throw new EntityNotFoundException("Aula não existe");
                     }
                 }).orElseThrow( () ->
-                        new EntityNotFoundException("Aula com o ID:" + id + " não encontrada"));
+                        new EntityNotFoundException("Aula não encontrada"));
     }
 
     @Override
@@ -79,7 +79,7 @@ public class AulaServiceImpl implements AulaService {
         return professorRepository.findById(id)
                 .map(professor -> {
                     List<Aula> aulas = aulaRepository.findByProfessorId(professor.getId()).orElseThrow(
-                            () -> new EntityNotFoundException("O professor com o ID: " + id + " não possui nenhuma aula"));
+                            () -> new EntityNotFoundException("O professor selecionado não possui nenhuma aula"));
 
                     aulas.stream()
                             .map(aula -> {
@@ -92,7 +92,7 @@ public class AulaServiceImpl implements AulaService {
 
                     return informacoesAulaByIdProfessorDTO;
                 })
-                .orElseThrow(() -> new EntityNotFoundException("Não existe nenhum professor com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Professor não encontrado"));
 
     }
 
@@ -108,7 +108,7 @@ public class AulaServiceImpl implements AulaService {
         ReturnProfessorDTO professorDTO = (aulaDTO.getProfessor() != null) ?
                 professorService.findByIdReturnDTO(aulaDTO.getProfessor()) :
                 new ReturnProfessorDTO();
-        Professor professor = new Professor(professorDTO.getNome(), professorDTO.getCpf(), professorDTO.getPeriodos());
+        Professor professor = new Professor(professorDTO.getNome(), professorDTO.getCpf(), professorDTO.getPeriodosDeTrabalho());
 
         CompleteMateriaDTO materiaDTO = (aulaDTO.getMateria() != null) ?
                 materiaService.findByIdReturnDTO(aulaDTO.getMateria()) :

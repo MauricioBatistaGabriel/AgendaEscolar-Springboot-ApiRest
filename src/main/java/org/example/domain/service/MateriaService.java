@@ -11,9 +11,9 @@ public interface MateriaService {
     Integer save(CompleteMateriaDTO materiaDTO);
     Materia findById(Integer id);
     CompleteMateriaDTO findByIdReturnDTO(Integer id);
-    List<CompleteMateriaDTO> findMateriasByIdTurma(Integer id);
-    List<Materia> findMateriasByProfessorId(Integer id);
-    List<CompleteMateriaDTO> findMateriaByIdTurmaAndIdProfessor(Integer idTurma, Integer idProfessor);
+    List<CompleteMateriaDTO> findByIdTurma(Integer id);
+    List<Materia> findByProfessorId(Integer id);
+    List<CompleteMateriaDTO> findByIdTurmaAndIdProfessor(Integer idTurma, Integer idProfessor);
     List<ReturnMateriaDTO> findAll();
     Materia update(Integer id, Materia materia);
     void deleteById(Integer id);

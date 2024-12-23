@@ -1,6 +1,7 @@
 package org.example.domain.service.impl;
 
 import org.example.domain.entity.*;
+import org.example.domain.exception.EntityNotDisponibleException;
 import org.example.domain.repository.*;
 import org.example.domain.rest.dto.*;
 import org.example.domain.service.*;
@@ -53,7 +54,7 @@ public class TurmaServiceImpl implements TurmaService {
 
         //Valida se periodo da sala está disponivel para a turma
         if (!sala.getPeriodosDisponiveis().contains(turmaDTO.getPeriodo())){
-            throw new IllegalArgumentException("A sala já possui turma nesse periodo");
+            throw new EntityNotDisponibleException("A sala já possui turma nesse periodo");
         }
 
         //Remove o periodo da sala utilizado pela turma criada como fora da lista de periodos disponiveis
@@ -84,7 +85,7 @@ public class TurmaServiceImpl implements TurmaService {
                     .forEach(materiaTurmaDTO -> materiaTurmaService.save(materiaTurmaDTO));
         }
         else{
-            throw new EntityNotFoundException("Nenhuma máteria foi selecionada");
+            throw new EntityNotDisponibleException("Nenhuma máteria foi selecionada");
         }
 
         //CRIA RELAÇÃO PROFESSOR-TURMA
@@ -95,7 +96,7 @@ public class TurmaServiceImpl implements TurmaService {
                     .forEach(professorTurmaDTO -> professorTurmaService.save(professorTurmaDTO));
         }
         else{
-            throw new EntityNotFoundException("Nenhum professor foi selecionado");
+            throw new EntityNotDisponibleException("Nenhum professor foi selecionado");
         }
 
         return turma1.getId();
@@ -109,10 +110,10 @@ public class TurmaServiceImpl implements TurmaService {
                         return turma;
                     }
                     else {
-                        throw new EntityNotFoundException("Turma com o ID:" + id + " foi deletada");
+                        throw new EntityNotFoundException("Turma não existe");
                     }
                 }).orElseThrow( () ->
-                        new EntityNotFoundException("Turma com ID:" + id + " não encontrada"));
+                        new EntityNotFoundException("Turma não encontrada"));
     }
 
     @Override
@@ -120,7 +121,7 @@ public class TurmaServiceImpl implements TurmaService {
         Turma turma = findById(id);
 
         CompleteSalaDTO salaDTO = salaService.findByIdReturnDTO(turma.getSala().getId());
-        List<CompleteMateriaDTO> materiaDTOS = materiaService.findMateriasByIdTurma(turma.getId());
+        List<CompleteMateriaDTO> materiaDTOS = materiaService.findByIdTurma(turma.getId());
         List<ReturnProfessorDTO> professoresDTO = professorService.findProfessoresDTOByIdTurma(turma.getId());
         ReturnTurmaDTO turmaDTO = new ReturnTurmaDTO(turma.getNome(), turma.getPeriodo(), salaDTO, materiaDTOS, professoresDTO);
 
