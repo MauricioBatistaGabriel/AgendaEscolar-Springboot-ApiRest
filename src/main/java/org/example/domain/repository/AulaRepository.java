@@ -14,4 +14,10 @@ public interface AulaRepository extends JpaRepository<Aula, Integer> {
             "WHERE a.professor.id = :id " +
             "AND a.isPresent = true")
     public Optional<List<Aula>> findByProfessorId(@Param("id") Integer id);
+
+    @Query("SELECT A " +
+            "FROM AULA A " +
+            "WHERE A.isPresent = true " +
+            "ORDER BY A.id DESC")
+    List<Aula> findAllOrderByIdDesc();
 }

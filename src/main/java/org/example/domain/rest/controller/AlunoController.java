@@ -2,9 +2,7 @@ package org.example.domain.rest.controller;
 
 import org.example.domain.entity.Aluno;
 import org.example.domain.exception.SenhaInvalidaException;
-import org.example.domain.rest.dto.CompleteAlunoDTO;
-import org.example.domain.rest.dto.CredenciaisDTO;
-import org.example.domain.rest.dto.TokenDTO;
+import org.example.domain.rest.dto.*;
 import org.example.domain.security.jwt.JwtService;
 import org.example.domain.service.AlunoService;
 import org.example.domain.service.impl.AlunoServiceImpl;
@@ -61,8 +59,13 @@ public class AlunoController {
     }
 
     @GetMapping
-    public List<CompleteAlunoDTO> filterAll(@RequestBody CompleteAlunoDTO alunoDTO){
-        return alunoService.filterAll(alunoDTO);
+    public List<ReturnAllAlunoDTO> findAll(){
+        return alunoService.findAll();
+    }
+
+    @GetMapping("/semTurma")
+    public  List<ReturnAlunoOnlyNameDTO> findSemTurma(){
+        return alunoService.findSemTurma();
     }
 
     @PutMapping("{id}")

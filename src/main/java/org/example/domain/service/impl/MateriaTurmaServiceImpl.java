@@ -36,4 +36,13 @@ public class MateriaTurmaServiceImpl implements MateriaTurmaService{
         MateriaTurma materiaTurma = new MateriaTurma(materia1, turma1);
         return materiaTurmaRepository.save(materiaTurma).getId();
     }
+
+    @Override
+    public void deleteByMateriaIdAndTurmaId(Integer materiaId, Integer turmaId) {
+        Materia materia = materiaService.findById(materiaId);
+
+        Turma turma = turmaService.findById(turmaId);
+
+        materiaTurmaRepository.deleteByMateriaIdAndTurmaId(materia.getId(), turma.getId());
+    }
 }

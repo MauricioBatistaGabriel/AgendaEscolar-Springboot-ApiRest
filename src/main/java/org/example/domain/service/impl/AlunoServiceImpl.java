@@ -1,16 +1,12 @@
 package org.example.domain.service.impl;
 
-import org.example.domain.entity.Aluno;
-import org.example.domain.entity.Nota;
-import org.example.domain.entity.Professor;
-import org.example.domain.entity.UsuarioAdm;
+import org.example.domain.entity.*;
 import org.example.domain.exception.EntityNotDisponibleException;
 import org.example.domain.exception.SenhaInvalidaException;
-import org.example.domain.repository.AlunoRepository;
-import org.example.domain.repository.NotaRepository;
-import org.example.domain.repository.ProfessorRepository;
-import org.example.domain.repository.UsuarioAdmRepository;
+import org.example.domain.repository.*;
 import org.example.domain.rest.dto.CompleteAlunoDTO;
+import org.example.domain.rest.dto.ReturnAllAlunoDTO;
+import org.example.domain.rest.dto.ReturnAlunoOnlyNameDTO;
 import org.example.domain.service.AlunoService;
 import org.example.domain.service.NotaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,6 +40,12 @@ public class AlunoServiceImpl implements AlunoService, UserDetailsService {
 
     @Autowired
     private NotaService notaService;
+
+    @Autowired
+    private TurmaRepository turmaRepository;
+
+    @Autowired
+    private TurmaServiceImpl turmaService;
 
     @Autowired
     private PasswordEncoder encoder;
@@ -119,29 +122,36 @@ public class AlunoServiceImpl implements AlunoService, UserDetailsService {
     }
 
     @Override
-    public List<CompleteAlunoDTO> filterAll(CompleteAlunoDTO alunoDTO) {
-        ExampleMatcher matcher = ExampleMatcher
-                .matching()
-                .withIgnoreCase()
-                .withStringMatcher(
-                        ExampleMatcher.StringMatcher.CONTAINING
-                );
-
-        Aluno aluno = new Aluno(alunoDTO.getEmail(), alunoDTO.getSenha(), alunoDTO.getNome(), alunoDTO.getCpf(), alunoDTO.getIdade());
-
-        Example example = Example.of(aluno, matcher);
-        List<Aluno> alunos = alunoRepository.findAll(example);
+    public List<ReturnAllAlunoDTO> findAll() {
+        List<Aluno> alunos = alunoRepository.findAllOrderByIdDesc();
 
         return alunos.stream()
-                .map( aluno1 -> new CompleteAlunoDTO(aluno1.getNome(), aluno1.getCpf(), aluno1.getIdade()))
-                .collect(Collectors.toList());
+                .map( aluno -> {
+                    Turma turma = turmaService.findByAlunoId(aluno.getId());
+                    String nomeTurma = turma != null ? turma.getNome() : "";
+                    return new ReturnAllAlunoDTO(aluno.getId(), aluno.getNome(), aluno.getCpf(), aluno.getIdade(), nomeTurma);
+                }).collect(Collectors.toList());
     }
 
     @Override
-    public Aluno update(Integer id, Aluno aluno) {
-        Aluno aluno1 = findById(id);
-        aluno.setId(aluno1.getId());
-        return alunoRepository.save(aluno);
+    public List<ReturnAlunoOnlyNameDTO> findSemTurma() {
+        List<Aluno> alunos = alunoRepository.findSemTurma();
+
+        return alunos.stream()
+                .map(aluno -> new ReturnAlunoOnlyNameDTO(aluno.getId(), aluno.getNome()))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    @Override
+    public Aluno update(Integer id, Aluno novoAluno) {
+        Aluno alunoBanco = findById(id);
+
+        novoAluno.setId(alunoBanco.getId());
+        novoAluno.setEmail(alunoBanco.getEmail());
+        novoAluno.setSenha(alunoBanco.getSenha());
+        novoAluno.setPresent(true);
+        return alunoRepository.save(novoAluno);
     }
 
     @Override

@@ -7,8 +7,10 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Setter
 @Getter
+@Builder
 @Entity(name = "AULA")
 public class Aula {
 
@@ -33,12 +35,17 @@ public class Aula {
     @JoinColumn(name = "id_turma")
     private Turma turma;
 
+    @ManyToOne
+    @JoinColumn(name = "id_horaaula")
+    private HoraAula horaAula;
+
     private boolean isPresent = true;
 
-    public Aula(String data, Professor professor, Materia materia, Turma turma) {
+    public Aula(String data, Professor professor, Materia materia, Turma turma, HoraAula horaAula) {
         this.data = data;
         this.professor = professor;
         this.materia = materia;
         this.turma = turma;
+        this.horaAula = horaAula;
     }
 }

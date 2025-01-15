@@ -4,6 +4,7 @@ import org.example.domain.security.jwt.JwtAuthFilter;
 import org.example.domain.security.jwt.JwtService;
 import org.example.domain.service.impl.AlunoServiceImpl;
 import org.example.domain.service.impl.ProfessorServiceImpl;
+import org.example.domain.service.impl.TokenBlackListServiceImpl;
 import org.example.domain.service.impl.UsuarioAdmServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -37,6 +38,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     JwtService jwtService;
 
+    @Autowired
+    private TokenBlackListServiceImpl tokenBlackListService;
+
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
@@ -44,7 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public OncePerRequestFilter jwtFilter() {
-        return new JwtAuthFilter(jwtService, professorService, alunoService, usuarioAdmService);
+        return new JwtAuthFilter(jwtService, professorService, alunoService, usuarioAdmService, tokenBlackListService);
     }
 
     @Override
@@ -73,6 +77,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(POST, "/api/professor/auth").permitAll()
                 .antMatchers(POST, "/api/professor").hasRole("ADM")
                 .antMatchers(DELETE, "/api/professor/{id}").hasRole("ADM")
+                .antMatchers(GET, "/api/professor/listarProfessorByMateriaAndHoraAulaAndData").hasRole("ADM")
                 .antMatchers(GET, "/api/professor/**").hasAnyRole("ADM", "PROFESSOR")
 
                 //ALUNO CONTROLLER

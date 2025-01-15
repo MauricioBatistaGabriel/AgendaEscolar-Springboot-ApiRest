@@ -9,13 +9,14 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class CompleteTurmaDTO {
 
-    @Size(min = 1, max = 15, message = "{campo.nome-turma.validation}")
+    @Size(min = 1, max = 40, message = "{campo.nome-turma.validation}")
     @NotEmpty(message = "{campo.nome-turma}")
     private String nome;
 
@@ -29,7 +30,4 @@ public class CompleteTurmaDTO {
     private List<Integer> materias;
 
     private List<Integer> alunos;
-
-    @NotNull(message = "{campo.professor}")
-    private List<Integer> professores;
 }

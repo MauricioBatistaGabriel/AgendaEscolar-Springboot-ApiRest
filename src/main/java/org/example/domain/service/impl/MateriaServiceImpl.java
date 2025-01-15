@@ -22,9 +22,6 @@ public class MateriaServiceImpl implements MateriaService {
     private MateriaRepository materiaRepository;
 
     @Autowired
-    private MateriaService materiaService;
-
-    @Autowired
     private TurmaService turmaService;
 
     @Autowired
@@ -67,18 +64,14 @@ public class MateriaServiceImpl implements MateriaService {
     }
 
     @Override
-    public List<CompleteMateriaDTO> findByIdTurma(Integer id) {
+    public List<ReturnMateriaDTO> findByIdTurma(Integer id) {
         Turma turma = turmaService.findById(id);
 
-        List<Materia> materias = materiaTurmaRepository.findMateriasByIdTurma(turma.getId());
+        List<Materia> materias = materiaRepository.findByTurmaId(turma.getId());
 
-        List<CompleteMateriaDTO> materiasDTO = new ArrayList<>();
-
-        materias.stream()
-                .map( materia -> materiasDTO.add(new CompleteMateriaDTO(materia.getNome())))
+        return materias.stream()
+                .map( materia -> new ReturnMateriaDTO(materia.getId(), materia.getNome()))
                 .collect(Collectors.toList());
-
-        return materiasDTO;
     }
 
     @Override
@@ -126,7 +119,7 @@ public class MateriaServiceImpl implements MateriaService {
 
     @Override
     public void deleteById(Integer id) {
-        Materia materia = materiaService.findById(id);
+        Materia materia = findById(id);
 
        //VALIDA SE MÁTERIA POSSUI RELAÇÃO COM PROFESSOR
         List<Professor> professores = professorService.findByMateriaId(materia.getId());
@@ -165,6 +158,7 @@ public class MateriaServiceImpl implements MateriaService {
             throw new RegraNegocioException("Essa matéria possui relação com a(s) avaliação(ões) " + nAvaliacao + "a matéria da sua avaliação ficará com '(Excluída)' ao lado do nome.");
         }
 
+        materia.setPresent(false);
         materiaRepository.save(materia);
     }
 }

@@ -29,13 +29,13 @@ public class AulaController {
     }
 
     @GetMapping
-    public List<ReturnAulaDTO> filterAll(@RequestBody CompleteAulaDTO aulaDTO){
-        return aulaService.filterAll(aulaDTO );
+    public List<ReturnAulaDTO> findAll(){
+        return aulaService.findAll();
     }
 
     @PutMapping("{id}")
     @ResponseStatus(OK)
-    public Aula update(@PathVariable Integer id, @RequestBody @Valid Aula aula){
+    public ReturnAulaDTO update(@PathVariable Integer id, @RequestBody @Valid CompleteAulaDTO aula){
         return aulaService.update(id, aula);
     }
 

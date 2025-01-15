@@ -13,7 +13,7 @@ public interface AulaService {
     Aula findById(Integer id);
     ReturnAulaDTO findByIdReturnDTO(Integer id);
     List<ReturnAulaInProfessorDTO> findByProfessorId(Integer id);
-    List<ReturnAulaDTO> filterAll(CompleteAulaDTO aulaDTO);
-    Aula update(Integer id, Aula aula);
+    List<ReturnAulaDTO> findAll();
+    ReturnAulaDTO update(Integer id, CompleteAulaDTO aula);
     void deleteById(Integer id);
 }

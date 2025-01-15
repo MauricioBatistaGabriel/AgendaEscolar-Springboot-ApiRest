@@ -34,10 +34,9 @@ public class MateriaController {
         return materiaService.findAll();
     }
 
-    @GetMapping("turma/{idTurma}/professor/{idProfessor}")
-    public List<CompleteMateriaDTO> findMateriaByIdTurmaAndIdProfessor(@PathVariable Integer idTurma, @PathVariable Integer idProfessor){
-        System.out.println("Chama o método");
-        return materiaService.findByIdTurmaAndIdProfessor(idTurma, idProfessor);
+    @GetMapping("turma/{idTurma}")
+    public List<ReturnMateriaDTO> findByTurmaId(@PathVariable Integer idTurma){
+        return materiaService.findByIdTurma(idTurma);
     }
 
     @PutMapping("{id}")

@@ -42,13 +42,13 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
     private AlunoRepository alunoRepository;
 
     @Autowired
-    private ProfessorTurmaRepository professorTurmaRepository;
-
-    @Autowired
     private MateriaServiceImpl materiaService;
 
     @Autowired
     private TurmaServiceImpl turmaService;
+
+    @Autowired
+    private HoraAulaServiceImpl horaAulaService;
 
     @Autowired
     private MateriaProfessorService materiaProfessorService;
@@ -162,18 +162,16 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
     }
 
     @Override
-    public List<ReturnProfessorDTO> findProfessoresDTOByIdTurma(Integer id) {
-        Turma turma = turmaService.findById(id);
+    public List<ReturnProfessorDTOInAula> findByMateriaAndHoraAulaAndData(FilterProfessorAulaCadastroDTO professorAulaCadastroDTO) {
+        Materia materia = materiaService.findById(professorAulaCadastroDTO.getMateria());
+        HoraAula horaAula = horaAulaService.findById(professorAulaCadastroDTO.getHoraAula());
+        Turma turma = turmaService.findById(professorAulaCadastroDTO.getTurma());
 
-        List<ReturnProfessorDTO> professoresDTO = new ArrayList<>();
+        List<Professor> professores = professorRepository.findByMateriaAndHoraAulaAndData(professorAulaCadastroDTO.getData(), horaAula.getId(), materia.getId(), turma.getPeriodo());
 
-        List<Professor> professores = professorTurmaRepository.findProfessoresByTurmaId(turma.getId());
-
-        professores.stream()
-                .map( professor -> professoresDTO.add(new ReturnProfessorDTO(professor.getId(), professor.getNome(), professor.getCpf(), professor.getPeriodosDeTrabalho())))
+        return professores.stream()
+                .map(professor -> new ReturnProfessorDTOInAula(professor.getId(), professor.getNome()))
                 .collect(Collectors.toList());
-
-        return professoresDTO;
     }
 
     @Override
@@ -213,6 +211,8 @@ public class ProfessorServiceImpl implements ProfessorService, UserDetailsServic
         Professor professorNovo = Professor.builder()
                 .id(professorBanco.getId())
                 .nome(professorDTO.getNome())
+                .email(professorBanco.getEmail())
+                .senha(professorBanco.getSenha())
                 .cpf(professorDTO.getCpf())
                 .periodosDeTrabalho(professorDTO.getPeriodosDeTrabalho())
                 .isPresent(true)

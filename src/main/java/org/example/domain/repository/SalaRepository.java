@@ -14,7 +14,13 @@ public interface SalaRepository extends JpaRepository<Sala, Integer> {
     @Query("SELECT s " +
             "FROM SALA s " +
             "JOIN s.periodosDisponiveis sp " +
-            "WHERE sp = :periodo " +
-            "AND s.isPresent = true")
+            "WHERE sp = :periodo AND " +
+            "s.isPresent = true")
     List<Sala> findByPeriodo(@Param("periodo")Periodo periodo);
+
+    @Query("SELECT S " +
+            "FROM SALA S " +
+            "WHERE S.isPresent = true " +
+            "ORDER BY S.id DESC")
+    List<Sala> findAllOrderByIdDesc();
 }

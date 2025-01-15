@@ -1,6 +1,7 @@
 package org.example.domain.repository;
 
 import org.example.domain.entity.Materia;
+import org.example.domain.rest.dto.ReturnMateriaDTO;
 import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -21,6 +22,13 @@ public interface MateriaRepository extends JpaRepository<Materia, Integer> {
 
     @Query("SELECT M " +
             "FROM MATERIA M " +
+            "JOIN MATERIA_TURMA MT ON MT.materia.id = M.id " +
+            "WHERE MT.turma.id = :id_turma AND " +
+            "MT.isPresent = true")
+    List<Materia> findByTurmaId(@Param("id_turma") Integer idTurma);
+
+    @Query("SELECT M " +
+            "FROM MATERIA M " +
             "JOIN MATERIA_PROFESSOR MP ON MP.materia.id = M.id " +
             "WHERE MP.professor.id = :id_professor AND " +
             "MP.isPresent = true AND " +
@@ -29,6 +37,7 @@ public interface MateriaRepository extends JpaRepository<Materia, Integer> {
 
     @Query("SELECT M " +
             "FROM MATERIA M " +
+            "WHERE M.isPresent = true " +
             "ORDER BY M.id DESC")
     List<Materia> findAllOrderByIdDesc();
 }

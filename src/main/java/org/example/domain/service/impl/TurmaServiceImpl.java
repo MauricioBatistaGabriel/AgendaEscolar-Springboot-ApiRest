@@ -1,6 +1,7 @@
 package org.example.domain.service.impl;
 
 import org.example.domain.entity.*;
+import org.example.domain.enums.Periodo;
 import org.example.domain.exception.EntityNotDisponibleException;
 import org.example.domain.repository.*;
 import org.example.domain.rest.dto.*;
@@ -11,7 +12,8 @@ import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
-import java.util.List;
+import javax.validation.constraints.Null;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,9 +27,6 @@ public class TurmaServiceImpl implements TurmaService {
 
     @Autowired
     private ProfessorService professorService;
-
-    @Autowired
-    private ProfessorTurmaService professorTurmaService;
 
     @Autowired
     private MateriaService materiaService;
@@ -88,17 +87,6 @@ public class TurmaServiceImpl implements TurmaService {
             throw new EntityNotDisponibleException("Nenhuma máteria foi selecionada");
         }
 
-        //CRIA RELAÇÃO PROFESSOR-TURMA
-        if (turmaDTO.getProfessores().size() != 0){
-            turmaDTO.getProfessores().stream()
-                    .map(professorId -> professorService.findById(professorId))
-                    .map(professor -> new CompleteProfessorTurmaDTO(professor.getId(), turma1.getId()))
-                    .forEach(professorTurmaDTO -> professorTurmaService.save(professorTurmaDTO));
-        }
-        else{
-            throw new EntityNotDisponibleException("Nenhum professor foi selecionado");
-        }
-
         return turma1.getId();
     }
 
@@ -120,10 +108,10 @@ public class TurmaServiceImpl implements TurmaService {
     public ReturnTurmaDTO findByIdReturnDTO(Integer id) {
         Turma turma = findById(id);
 
-        CompleteSalaDTO salaDTO = salaService.findByIdReturnDTO(turma.getSala().getId());
-        List<CompleteMateriaDTO> materiaDTOS = materiaService.findByIdTurma(turma.getId());
-        List<ReturnProfessorDTO> professoresDTO = professorService.findProfessoresDTOByIdTurma(turma.getId());
-        ReturnTurmaDTO turmaDTO = new ReturnTurmaDTO(turma.getNome(), turma.getPeriodo(), salaDTO, materiaDTOS, professoresDTO);
+        CompleteSalaDTO salaDTOComplete = salaService.findByIdReturnDTO(turma.getSala().getId());
+        ReturnSalaDTO salaDTO = new ReturnSalaDTO(salaDTOComplete.getId(), salaDTOComplete.getSala());
+        List<ReturnMateriaDTO> materiaDTOS = materiaService.findByIdTurma(turma.getId());
+        ReturnTurmaDTO turmaDTO = new ReturnTurmaDTO(turma.getId(), turma.getNome(), turma.getPeriodo(), salaDTO, materiaDTOS);
 
         return turmaDTO;
     }
@@ -132,8 +120,8 @@ public class TurmaServiceImpl implements TurmaService {
     public ReturnTurmaInOtherClassDTO findByIdTurmaInOtherClass(Integer id) {
         Turma turma = findById(id);
 
-        CompleteSalaDTO salaDTO = new CompleteSalaDTO(turma.getSala().getSala(), turma.getSala().getPeriodosDisponiveis());
-        ReturnTurmaInOtherClassDTO turmaDTO = new ReturnTurmaInOtherClassDTO(turma.getNome(), salaDTO);
+        CompleteSalaDTO salaDTO = new CompleteSalaDTO(turma.getSala().getId(), turma.getSala().getSala(), turma.getSala().getPeriodosDisponiveis());
+        ReturnTurmaInOtherClassDTO turmaDTO = new ReturnTurmaInOtherClassDTO(turma.getId(), turma.getNome(), salaDTO);
 
         return turmaDTO;
     }
@@ -154,25 +142,18 @@ public class TurmaServiceImpl implements TurmaService {
         return turmas;
     }
 
+    @Override
+    public Turma findByAlunoId(Integer id) {
+        Aluno aluno = alunoService.findById(id);
+
+        return turmaRepository.findByAlunoId(aluno.getId()).orElse(null);
+    }
+
+
     //MÉTODO NÃO BUSCA TURMA POR MATÉRIA
     @Override
-    public List<ReturnTurmaDTO> filterAll(CompleteTurmaDTO turmaDTO) {
-        ExampleMatcher matcher = ExampleMatcher
-                .matching()
-                .withIgnoreCase()
-                .withStringMatcher(
-                        ExampleMatcher.StringMatcher.CONTAINING
-                );
-
-        CompleteSalaDTO salaDTO = (turmaDTO.getSala() != null) ?
-                salaService.findByIdReturnDTO(turmaDTO.getSala()) :
-                new CompleteSalaDTO();
-        Sala sala = new Sala(salaDTO.getSala());
-
-        Turma turma = new Turma(turmaDTO.getNome(), sala);
-
-        Example example = Example.of(turma, matcher);
-        List<Turma> turmas = turmaRepository.findAll(example);
+    public List<ReturnTurmaDTO> findAll() {
+        List<Turma> turmas = turmaRepository.findAllOrderByIdDesc();
 
         return turmas.stream()
                 .map( turma1 -> {
@@ -181,13 +162,99 @@ public class TurmaServiceImpl implements TurmaService {
                 }).collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
-    public Turma update(Integer id, Turma turma) {
-        Turma turma1 = findById(id);
+    public ReturnTurmaDTO update(Integer id, UpdateTurmaDTO turmaDTO) {
+        Turma turmaBanco = findById(id);
 
-        turma.setId(turma1.getId());
+        Turma turmaNova = new Turma();
+        turmaNova.setId(turmaBanco.getId());
+        turmaNova.setPresent(true);
 
-        return turmaRepository.save(turma);
+        Sala salaNova = salaService.findById(turmaDTO.getSala());
+        Sala salaOld = salaService.findById(turmaBanco.getSala().getId());
+        Set<Periodo> periodoDaSalaNova = new HashSet<>();
+        Set<Periodo> periodoDaSalaOld = new HashSet<>();
+
+        //Valida se periodo da sala está disponivel para a turma
+        if (!salaNova.getPeriodosDisponiveis().contains(turmaDTO.getPeriodo()) && (salaNova.getId() != turmaBanco.getSala().getId() || turmaDTO.getPeriodo() != turmaBanco.getPeriodo())){
+            throw new EntityNotDisponibleException("A sala já possui turma nesse periodo");
+        }
+
+        //Valida se a sala foi alterada, para editar ou não os periodos das salas
+        if(!salaNova.equals(turmaBanco.getSala())){
+            //Caso tenha alterado a sala, pega os periodos que a sala possui e adiciona o periodo da turma
+            periodoDaSalaOld.addAll(salaOld.getPeriodosDisponiveis());
+            periodoDaSalaOld.add(turmaBanco.getPeriodo());
+            salaOld.setPeriodosDisponiveis(periodoDaSalaOld);
+            salaService.update(salaOld.getId(), salaOld);
+
+            //Retira o periodo disponivel da nova sala, utiliando o periodo da turma da tela de edição
+            periodoDaSalaNova.addAll(salaNova.getPeriodosDisponiveis());
+            periodoDaSalaNova.remove(turmaDTO.getPeriodo());
+            salaNova.setPeriodosDisponiveis(periodoDaSalaNova);
+            salaService.update(salaNova.getId(), salaNova);
+        }
+        //Valida se a sala é igual e se o periodo foi alterado, atualiza os periodos disponiveis da sala
+        if (salaNova.equals(turmaBanco.getSala()) && !turmaDTO.getPeriodo().equals(turmaBanco.getPeriodo())) {
+            periodoDaSalaNova.addAll(salaOld.getPeriodosDisponiveis());
+            periodoDaSalaNova.add(turmaBanco.getPeriodo());
+            periodoDaSalaNova.remove(turmaDTO.getPeriodo());
+            salaNova.setPeriodosDisponiveis(periodoDaSalaNova);
+            salaService.update(salaNova.getId(), salaNova);
+        }
+
+        Sala sala = salaService.findById(turmaDTO.getSala());
+        turmaNova.setSala(sala);
+        turmaNova.setNome(turmaDTO.getNome());
+        turmaNova.setPeriodo(turmaDTO.getPeriodo());
+
+        turmaRepository.save(turmaNova);
+
+        //Materias que a turma ja possui atualmente
+        List<ReturnMateriaDTO> materiasDTOBanco = materiaService.findByIdTurma(turmaBanco.getId()).stream()
+                .map(materia -> new ReturnMateriaDTO(materia.getId(), materia.getNome()))
+                .collect(Collectors.toList());
+
+        //Valida se as matérias presentes na turmaBanco ainda estão presente na turmaDTO
+        materiasDTOBanco.stream()
+                .forEach(materiaDTOBanco -> {
+                    boolean exists = turmaDTO.getMaterias().stream()
+                            .anyMatch(materiaNova -> materiaNova.equals(materiaDTOBanco.getId()));
+                    if(!exists){
+                        materiaTurmaService.deleteByMateriaIdAndTurmaId(materiaDTOBanco.getId(), turmaBanco.getId());
+                    }
+                });
+
+        //Valida se as matérias presente na turmaDTO ja estão presentes na turmaBanco
+        turmaDTO.getMaterias().stream().forEach(materiaNova -> {
+            boolean exists = materiasDTOBanco.stream()
+                    .anyMatch(materiaDTOBanco -> materiaDTOBanco.getId().equals(materiaNova));
+            if(!exists){
+                //Salva a matéria nova
+                CompleteMateriaTurmaDTO novaMateria = CompleteMateriaTurmaDTO.builder()
+                        .materia(materiaNova)
+                        .Turma(turmaNova.getId())
+                        .build();
+                materiaTurmaService.save(novaMateria);
+            }
+        });
+
+        //Busca as matérias atualizadas e insere no professor para retornar
+        List<ReturnMateriaDTO> materiasAtualizadas = materiaService.findByIdTurma(turmaNova.getId()).stream()
+                .map(materia -> new ReturnMateriaDTO(materia.getId(), materia.getNome()))
+                .collect(Collectors.toList());
+
+        ReturnSalaDTO salaDTO = new ReturnSalaDTO(turmaNova.getSala().getId(), turmaNova.getSala().getSala());
+        ReturnTurmaDTO turmaReturnDTO = ReturnTurmaDTO.builder()
+                .id(turmaNova.getId())
+                .nome(turmaNova.getNome())
+                .periodo(turmaNova.getPeriodo())
+                .sala(salaDTO)
+                .materias(materiasAtualizadas)
+                .build();
+
+        return turmaReturnDTO;
     }
 
     @Override

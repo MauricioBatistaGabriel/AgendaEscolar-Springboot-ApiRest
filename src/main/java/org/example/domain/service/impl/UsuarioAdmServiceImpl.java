@@ -41,6 +41,7 @@ public class UsuarioAdmServiceImpl implements UsuarioAdmService, UserDetailsServ
                 .builder()
                 .email(usuarioAdmDTO.getEmail())
                 .senha(usuarioAdmDTO.getSenha())
+                .isPresent(true)
                 .build();
 
         //Valida se email de usuário está livre

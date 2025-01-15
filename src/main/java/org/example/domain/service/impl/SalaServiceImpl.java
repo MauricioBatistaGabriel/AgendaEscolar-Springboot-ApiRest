@@ -43,44 +43,36 @@ public class SalaServiceImpl implements SalaService {
     public CompleteSalaDTO findByIdReturnDTO(Integer id) {
         Sala sala = findById(id);
 
-        CompleteSalaDTO salaDTO = new CompleteSalaDTO(sala.getSala(), sala.getPeriodosDisponiveis());
+        CompleteSalaDTO salaDTO = new CompleteSalaDTO(sala.getId(), sala.getSala(), sala.getPeriodosDisponiveis());
 
         return salaDTO;
     }
 
     @Override
-    public List<CompleteSalaDTO> findByPeriodo(Periodo periodo) {
-        List<Sala> salasDisponiveis = salaRepository.findByPeriodo(periodo);
+    public List<CompleteSalaDTO> findByPeriodo(String periodo) {
+        Periodo periodoObj = Periodo.valueOf(periodo);
+        List<Sala> salasDisponiveis = salaRepository.findByPeriodo(periodoObj);
 
         return salasDisponiveis.stream()
-                .map( sala -> new CompleteSalaDTO(sala.getSala(), sala.getPeriodosDisponiveis()))
+                .map( sala -> new CompleteSalaDTO(sala.getId(), sala.getSala()))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<CompleteSalaDTO> filterAll(CompleteSalaDTO salaDTO) {
-        ExampleMatcher matcher = ExampleMatcher
-                .matching()
-                .withIgnoreCase()
-                .withStringMatcher(
-                        ExampleMatcher.StringMatcher.CONTAINING
-                );
-
-        Sala sala = new Sala(salaDTO.getSala());
-
-        Example example = Example.of(sala, matcher);
-        List<Sala> salas = salaRepository.findAll(example);
+    public List<CompleteSalaDTO> findAll() {
+        List<Sala> salas = salaRepository.findAllOrderByIdDesc();
 
         return salas.stream()
-                .map( sala1 -> new CompleteSalaDTO(sala1.getSala(), sala1.getPeriodosDisponiveis()))
+                .map( sala1 -> new CompleteSalaDTO(sala1.getId(), sala1.getSala(), sala1.getPeriodosDisponiveis()))
                 .collect(Collectors.toList());
     }
 
     @Override
     public Sala update(Integer id, Sala sala) {
-        Sala sala1 = findById(id);
+        Sala salabanco = findById(id);
 
-        sala.setId(sala1.getId());
+        sala.setId(salabanco.getId());
+        sala.setPresent(true);
 
         return salaRepository.save(sala);
     }

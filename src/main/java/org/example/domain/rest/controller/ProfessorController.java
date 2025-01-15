@@ -5,12 +5,9 @@ import org.example.domain.enums.Periodo;
 import org.example.domain.exception.SenhaInvalidaException;
 import org.example.domain.rest.dto.*;
 import org.example.domain.security.jwt.JwtService;
-import org.example.domain.service.ProfessorService;
-import org.example.domain.service.ProfessorTurmaService;
 import org.example.domain.service.impl.AulaServiceImpl;
 import org.example.domain.service.impl.ProfessorServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -75,9 +72,9 @@ public class ProfessorController {
         return professorService.findByTurmaId(id);
     }
 
-    @GetMapping("/materia/{idMateria}")
-    public List<ReturnProfessorDTO> findProfessorByMateriaAndPeriodo(@PathVariable Integer idMateria, @RequestBody Periodo periodo){
-        return professorService.findProfessorDTOByMateriaAndPeriodo(idMateria, periodo);
+    @PostMapping("/listarProfessorByMateriaAndHoraAulaAndData")
+    public List<ReturnProfessorDTOInAula> findByMateriaAndHoraAulaAndData(@RequestBody FilterProfessorAulaCadastroDTO professorAulaCadastroDTO){
+        return professorService.findByMateriaAndHoraAulaAndData(professorAulaCadastroDTO);
     }
 
     @GetMapping
