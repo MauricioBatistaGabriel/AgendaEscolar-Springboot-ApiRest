@@ -4,6 +4,7 @@ import org.example.domain.entity.Sala;
 import org.example.domain.enums.Periodo;
 import org.example.domain.rest.dto.CompleteSalaDTO;
 import org.example.domain.service.SalaService;
+import org.example.domain.service.impl.SalaServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,7 @@ import static org.springframework.http.HttpStatus.*;
 public class SalaController {
 
     @Autowired
-    private SalaService salaService;
+    private SalaServiceImpl salaService;
 
     @PostMapping
     @ResponseStatus(CREATED)
@@ -25,19 +26,20 @@ public class SalaController {
         return salaService.save(salaDTO);
     }
 
+    @GetMapping("/byPeriodo/{periodo}")
+    @ResponseStatus(OK)
+    public List<CompleteSalaDTO> findByPeriodo(@PathVariable String periodo){
+        return salaService.findByPeriodo(periodo);
+    }
+
     @GetMapping("{id}")
     public CompleteSalaDTO findById(@PathVariable Integer id){
         return salaService.findByIdReturnDTO(id);
     }
 
-    @GetMapping("byPeriodo")
-    public List<CompleteSalaDTO> findByPeriodo(@RequestBody Periodo periodo){
-        return salaService.findByPeriodo(periodo);
-    }
-
     @GetMapping
-    public List<CompleteSalaDTO> filterAll(@RequestBody CompleteSalaDTO salaDTO){
-        return salaService.filterAll(salaDTO);
+    public List<CompleteSalaDTO> findAll(){
+        return salaService.findAll();
     }
 
     @PutMapping("{id}")

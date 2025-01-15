@@ -9,7 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReturnTurmaInOtherClassDTO {
 
+    private Integer id;
     private String nome;
-
     private CompleteSalaDTO sala;
+
+    public ReturnTurmaInOtherClassDTO(String nome, CompleteSalaDTO sala){
+        this.nome = nome;
+        this.sala = sala;
+    }
 }

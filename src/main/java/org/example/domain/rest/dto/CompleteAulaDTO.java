@@ -24,4 +24,7 @@ public class CompleteAulaDTO {
 
     @NotNull(message = "{campo.turma}")
     private Integer turma;
+
+    @NotNull(message = "{campo.horaaula}")
+    private Integer horaaula;
 }

@@ -15,7 +15,7 @@ public interface ProfessorService {
     ReturnProfessorDTO findByIdReturnDTO(Integer id);
     ReturnCompleteProfessorDTO findByIdReturnDTOComplete(Integer id);
     List<ReturnProfessorDTO> findProfessorDTOByMateriaAndPeriodo(Integer materia, Periodo periodo);
-    List<ReturnProfessorDTO> findProfessoresDTOByIdTurma(Integer id);
+    List<ReturnProfessorDTOInAula> findByMateriaAndHoraAulaAndData(FilterProfessorAulaCadastroDTO professorAulaCadastroDTO);
     List<Professor> findByMateriaId(Integer id);
     List<Professor> findByTurmaId(Integer id);
     List<ReturnProfessorDTO> findAll();

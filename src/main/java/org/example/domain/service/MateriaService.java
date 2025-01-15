@@ -11,7 +11,7 @@ public interface MateriaService {
     Integer save(CompleteMateriaDTO materiaDTO);
     Materia findById(Integer id);
     CompleteMateriaDTO findByIdReturnDTO(Integer id);
-    List<CompleteMateriaDTO> findByIdTurma(Integer id);
+    List<ReturnMateriaDTO> findByIdTurma(Integer id);
     List<Materia> findByProfessorId(Integer id);
     List<CompleteMateriaDTO> findByIdTurmaAndIdProfessor(Integer idTurma, Integer idProfessor);
     List<ReturnMateriaDTO> findAll();

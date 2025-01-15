@@ -8,4 +8,5 @@ import java.util.List;
 public interface MateriaTurmaService {
 
     Integer save(CompleteMateriaTurmaDTO materiaTurmaDTO);
+    void deleteByMateriaIdAndTurmaId(Integer materiaId, Integer turmaId);
 }

@@ -20,7 +20,23 @@ public interface ProfessorRepository extends JpaRepository<Professor, Integer> {
             "AND mp.materia.isPresent = true")
     List<Professor> findProfessorByPeriodoAndMateria(@Param("idMateria") Integer idMateria, @Param("periodo")Periodo periodo);
 
-    Optional<Professor> findByEmail(String email);
+    @Query("SELECT p FROM PROFESSOR p " +
+            "JOIN MATERIA_PROFESSOR mp ON mp.professor.id = p.id " +
+            "WHERE p.id NOT IN (" +
+            " SELECT a.professor.id FROM AULA a " +
+            " WHERE a.data = :data AND a.horaAula.id = :horaAulaId" +
+            ") " + "AND mp.materia.id = :materiaId " +
+            "AND :periodo MEMBER OF p.periodosDeTrabalho")
+    List<Professor> findByMateriaAndHoraAulaAndData(@Param("data") String data,
+                                                    @Param("horaAulaId") Integer horaAulaId,
+                                                    @Param("materiaId") Integer materiaId,
+                                                    @Param("periodo") Periodo periodo);
+
+    @Query("SELECT P " +
+            "FROM PROFESSOR P " +
+            "WHERE P.email = :email AND " +
+            "P.isPresent = true")
+    Optional<Professor> findByEmail(@Param("email") String email);
 
     @Query("SELECT P " +
             "FROM PROFESSOR P " +
@@ -31,9 +47,12 @@ public interface ProfessorRepository extends JpaRepository<Professor, Integer> {
 
     @Query("SELECT P " +
             "FROM PROFESSOR P " +
-            "JOIN PROFESSOR_TURMA PT ON PT.professor.id = P.id " +
-            "WHERE PT.turma.id = :id_turma " +
-            "AND PT.isPresent = true")
+            "JOIN AULA A ON A.professor.id = P.id " +
+            "JOIN TURMA T ON T.id = A.turma.id " +
+            "WHERE T.id = :id_turma " +
+            "AND P.isPresent = true " +
+            "AND T.isPresent = true " +
+            "AND A.isPresent = true")
     List<Professor> findByTurmaId(@Param("id_turma") Integer id);
 
     @Query("SELECT P " +

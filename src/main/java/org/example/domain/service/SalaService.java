@@ -11,8 +11,8 @@ public interface SalaService {
     Integer save(CompleteSalaDTO salaDTO);
     Sala findById(Integer id);
     CompleteSalaDTO findByIdReturnDTO(Integer id);
-    List<CompleteSalaDTO> findByPeriodo(Periodo periodo);
-    List<CompleteSalaDTO> filterAll(CompleteSalaDTO salaDTO);
+    List<CompleteSalaDTO> findByPeriodo(String periodo);
+    List<CompleteSalaDTO> findAll();
     Sala update(Integer id, Sala sala);
     void deleteById(Integer id);
 }
