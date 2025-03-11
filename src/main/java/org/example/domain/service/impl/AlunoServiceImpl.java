@@ -128,7 +128,12 @@ public class AlunoServiceImpl implements AlunoService, UserDetailsService {
         return alunos.stream()
                 .map( aluno -> {
                     Turma turma = turmaService.findByAlunoId(aluno.getId());
-                    String nomeTurma = turma != null ? turma.getNome() : "";
+
+                    String nomeTurma = "";
+                    if (turma != null){
+                        nomeTurma = turma.isPresent() ? turma.getNome() : "";
+                    }
+
                     return new ReturnAllAlunoDTO(aluno.getId(), aluno.getNome(), aluno.getCpf(), aluno.getIdade(), nomeTurma);
                 }).collect(Collectors.toList());
     }
