@@ -25,6 +25,9 @@ public interface AlunoRepository extends JpaRepository<Aluno, Integer> {
     @Query("SELECT A " +
             "FROM ALUNO A " +
             "LEFT JOIN ALUNO_TURMA AT ON AT.aluno.id = A.id " +
-            "WHERE AT.aluno.id IS NULL")
+            "LEFT JOIN TURMA T ON T.id = AT.turma.id " +
+            "WHERE " +
+            "T.isPresent = false OR " +
+            "T.id IS NULL")
     List<Aluno> findSemTurma();
 }

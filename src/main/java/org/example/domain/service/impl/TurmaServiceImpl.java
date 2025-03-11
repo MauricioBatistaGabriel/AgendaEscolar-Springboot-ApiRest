@@ -263,6 +263,13 @@ public class TurmaServiceImpl implements TurmaService {
 
         turma.setPresent(false);
 
+        Set<Periodo> periodoAtualizadoSala = new HashSet<>();
+        periodoAtualizadoSala.addAll(turma.getSala().getPeriodosDisponiveis());
+        periodoAtualizadoSala.add(turma.getPeriodo());
+        turma.getSala().setPeriodosDisponiveis(periodoAtualizadoSala);
+
+        salaService.update(turma.getSala().getId(), turma.getSala());
+
         turmaRepository.save(turma);
     }
 }
