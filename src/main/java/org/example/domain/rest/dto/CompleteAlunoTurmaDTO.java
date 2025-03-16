@@ -12,4 +12,5 @@ public class CompleteAlunoTurmaDTO {
     private Integer aluno;
 
     private Integer turma;
+    private boolean isPresent;
 }

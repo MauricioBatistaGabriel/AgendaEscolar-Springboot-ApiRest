@@ -3,10 +3,8 @@ package org.example.domain.rest.controller;
 import org.example.domain.entity.HoraAula;
 import org.example.domain.rest.dto.CompleteHoraAulaDTO;
 import org.example.domain.rest.dto.ReturnHoraAulaDTO;
-import org.example.domain.service.impl.HoraAulaServiceImpl;
+import org.example.domain.service.HoraAulaService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +16,7 @@ import static org.springframework.http.HttpStatus.*;
 public class HoraAulaController {
 
     @Autowired
-    private HoraAulaServiceImpl horaAulaService;
+    private HoraAulaService horaAulaService;
 
     @PostMapping
     @ResponseStatus(CREATED)

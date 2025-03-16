@@ -1,10 +1,8 @@
 package org.example.domain.rest.controller;
 
 import org.example.domain.entity.Sala;
-import org.example.domain.enums.Periodo;
 import org.example.domain.rest.dto.CompleteSalaDTO;
 import org.example.domain.service.SalaService;
-import org.example.domain.service.impl.SalaServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +16,7 @@ import static org.springframework.http.HttpStatus.*;
 public class SalaController {
 
     @Autowired
-    private SalaServiceImpl salaService;
+    private SalaService salaService;
 
     @PostMapping
     @ResponseStatus(CREATED)
