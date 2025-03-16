@@ -7,5 +7,9 @@ import java.util.List;
 
 public interface AlunoTurmaService {
 
-    Integer save(CompleteAlunoTurmaDTO alunoTurmaDTO);
+    Integer save(AlunoTurma alunoTurma);
+    List<AlunoTurma> findByTurmaId(Integer turmaId);
+    AlunoTurma findById(Integer alunoTurmaId);
+    AlunoTurma update(AlunoTurma alunoTurma);
+    void delete(AlunoTurma alunoTurma);
 }

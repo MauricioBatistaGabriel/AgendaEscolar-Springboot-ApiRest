@@ -12,6 +12,8 @@ import org.example.domain.service.AlunoTurmaService;
 import org.example.domain.service.TurmaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -27,11 +29,42 @@ public class AlunoTurmaServiceImpl implements AlunoTurmaService {
     private TurmaService turmaService;
 
     @Override
-    public Integer save(CompleteAlunoTurmaDTO alunoTurmaDTO) {
-        Aluno aluno = alunoService.findById(alunoTurmaDTO.getAluno());
-        Turma turma = turmaService.findById(alunoTurmaDTO.getTurma());
-        AlunoTurma alunoTurma = new AlunoTurma(aluno, turma);
-
+    public Integer save(AlunoTurma alunoTurma) {
         return alunoTurmaRepository.save(alunoTurma).getId();
+    }
+
+    @Override
+    public List<AlunoTurma> findByTurmaId(Integer turmaId) {
+        return alunoTurmaRepository.findByTurmaId(turmaId);
+    }
+
+    @Override
+    public AlunoTurma findById(Integer alunoTurmaId) {
+        return alunoTurmaRepository.findById(alunoTurmaId)
+                .map( alunoTurma -> {
+                    if (alunoTurma.isPresent()) {
+                        return alunoTurma;
+                    }
+                    else {
+                        throw new EntityNotFoundException("Relação aluno_turma não existe");
+                    }
+                }).orElseThrow( () ->
+                        new EntityNotFoundException("Relação aluno_turma não encontrada"));
+    }
+
+    @Override
+    public AlunoTurma update(AlunoTurma alunoTurma) {
+        AlunoTurma alunoTurmaDb = findById(alunoTurma.getId());
+
+        alunoTurma.setId(alunoTurmaDb.getId());
+
+        return alunoTurmaRepository.save(alunoTurma);
+    }
+
+    @Override
+    public void delete(AlunoTurma alunoTurma) {
+        alunoTurma.setPresent(false);
+
+        update(alunoTurma);
     }
 }

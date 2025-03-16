@@ -22,12 +22,12 @@ public interface AlunoRepository extends JpaRepository<Aluno, Integer> {
             "ORDER BY A.id DESC")
     List<Aluno> findAllOrderByIdDesc();
 
-    @Query("SELECT A " +
+    @Query("SELECT DISTINCT A " +
             "FROM ALUNO A " +
-            "LEFT JOIN ALUNO_TURMA AT ON AT.aluno.id = A.id " +
+            "LEFT JOIN ALUNO_TURMA AT ON AT.aluno.id = A.id AND AT.isPresent = true " +
             "LEFT JOIN TURMA T ON T.id = AT.turma.id " +
             "WHERE " +
-            "T.isPresent = false OR " +
-            "T.id IS NULL")
+            "T.id IS NULL OR " +
+            "T.isPresent <> true")
     List<Aluno> findSemTurma();
 }

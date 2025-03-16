@@ -66,9 +66,9 @@ public class TurmaServiceImpl implements TurmaService {
             for(Integer index = 0; index < turmaDTO.getAlunos().size(); index++){
                 Aluno aluno = alunoService.findById(turmaDTO.getAlunos().get(index));
 
-                CompleteAlunoTurmaDTO alunoTurmaDTO = new CompleteAlunoTurmaDTO(aluno.getId(), turma1.getId());
+                AlunoTurma alunoTurma = new AlunoTurma(aluno, turma1);
 
-                alunoTurmaService.save(alunoTurmaDTO);
+                alunoTurmaService.save(alunoTurma);
             }
 
         }
@@ -94,7 +94,7 @@ public class TurmaServiceImpl implements TurmaService {
     public Turma findById(Integer id) {
         return turmaRepository.findById(id)
                 .map( turma -> {
-                    if (turma.isPresent() == true) {
+                    if (turma.isPresent()) {
                         return turma;
                     }
                     else {
@@ -257,18 +257,25 @@ public class TurmaServiceImpl implements TurmaService {
         return turmaReturnDTO;
     }
 
+    @Transactional
     @Override
     public void deleteById(Integer id) {
         Turma turma = findById(id);
 
         turma.setPresent(false);
 
-        Set<Periodo> periodoAtualizadoSala = new HashSet<>();
-        periodoAtualizadoSala.addAll(turma.getSala().getPeriodosDisponiveis());
+        Set<Periodo> periodoAtualizadoSala = new HashSet<>(turma.getSala().getPeriodosDisponiveis());
         periodoAtualizadoSala.add(turma.getPeriodo());
         turma.getSala().setPeriodosDisponiveis(periodoAtualizadoSala);
 
         salaService.update(turma.getSala().getId(), turma.getSala());
+
+        List<AlunoTurma> alunoTurmas = alunoTurmaService.findByTurmaId(turma.getId());
+        alunoTurmas
+                .forEach( alunoTurma -> {
+                    alunoTurma.setPresent(false);
+                    alunoTurmaService.save(alunoTurma);
+                });
 
         turmaRepository.save(turma);
     }

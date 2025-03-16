@@ -5,9 +5,7 @@ import org.example.domain.exception.SenhaInvalidaException;
 import org.example.domain.rest.dto.*;
 import org.example.domain.security.jwt.JwtService;
 import org.example.domain.service.AlunoService;
-import org.example.domain.service.impl.AlunoServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +20,7 @@ import static org.springframework.http.HttpStatus.*;
 public class AlunoController {
 
     @Autowired
-    private AlunoServiceImpl alunoService;
+    private AlunoService alunoService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;

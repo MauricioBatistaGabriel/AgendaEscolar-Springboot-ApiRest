@@ -1,12 +1,11 @@
 package org.example.domain.rest.controller;
 
 import org.example.domain.entity.Professor;
-import org.example.domain.enums.Periodo;
 import org.example.domain.exception.SenhaInvalidaException;
 import org.example.domain.rest.dto.*;
 import org.example.domain.security.jwt.JwtService;
-import org.example.domain.service.impl.AulaServiceImpl;
-import org.example.domain.service.impl.ProfessorServiceImpl;
+import org.example.domain.service.AulaService;
+import org.example.domain.service.ProfessorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,10 +22,10 @@ import static org.springframework.http.HttpStatus.*;
 public class ProfessorController {
 
     @Autowired
-    private ProfessorServiceImpl professorService;
+    private ProfessorService professorService;
 
     @Autowired
-    private AulaServiceImpl aulaService;
+    private AulaService aulaService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
